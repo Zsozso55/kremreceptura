@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3D5247">
+<title>Receptúra — Krémműhely</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  --paper:#F1F0E7; --paper-2:#FBFAF4; --card:#FFFFFF;
+  --ink:#232A20; --ink-soft:#5C6356;
+  --line:#DEDCCD; --line-2:#E9E7DA;
+  --green:#3D5247; --green-d:#2C3C33; --sage:#E5E9DD;
+  --honey:#BC7C36; --honey-d:#A1692A;
+  --clay:#AE4E39; --clay-bg:#F6E5DF;
+  --radius:12px; --radius-s:9px;
+  --shadow:0 1px 2px rgba(35,42,32,.05), 0 10px 28px -16px rgba(35,42,32,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Hanken Grotesk',system-ui,sans-serif;background:var(--paper);color:var(--ink);
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(60,76,63,.025) 1px, transparent 1px);background-size:22px 22px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:1rem}
+input,select,textarea{font-family:inherit;font-size:1rem;color:var(--ink)}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;line-height:1.15;letter-spacing:-.01em}
+
+.app{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 18px 120px}
+.topbar{display:flex;align-items:center;gap:14px;padding:22px 2px 18px}
+.mark{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--green);
+  display:grid;place-items:center;box-shadow:var(--shadow)}
+.mark svg{width:28px;height:28px}
+.brand h1{font-size:1.5rem;color:var(--green-d);letter-spacing:-.02em}
+.brand .tag{font-size:.82rem;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase}
+.langtog{margin-left:auto;display:flex;gap:3px;background:var(--paper-2);border:1px solid var(--line);
+  border-radius:10px;padding:3px;box-shadow:var(--shadow)}
+.langtog button{padding:7px 13px;border-radius:7px;font-weight:700;font-size:.82rem;color:var(--ink-soft);letter-spacing:.03em;transition:.15s}
+.langtog button.active{background:var(--green);color:#fff}
+
+.nav{display:flex;gap:6px;background:var(--paper-2);border:1px solid var(--line);
+  border-radius:14px;padding:5px;margin-bottom:20px;box-shadow:var(--shadow)}
+.nav button{flex:1;padding:11px 8px;border-radius:10px;font-weight:600;color:var(--ink-soft);
+  font-size:.96rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
+.nav button .ic{width:18px;height:18px;opacity:.8}
+.nav button.active{background:var(--green);color:#fff;box-shadow:0 4px 12px -4px rgba(44,60,51,.5)}
+.nav button.active .ic{opacity:1}
+
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.stat{flex:1;min-width:130px;background:var(--paper-2);border:1px solid var(--line);
+  border-radius:var(--radius);padding:13px 16px}
+.stat .n{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;color:var(--green-d);line-height:1}
+.stat .l{font-size:.8rem;color:var(--ink-soft);margin-top:4px}
+.stat.warn .n{color:var(--clay)}
+
+.shead{display:flex;align-items:center;gap:12px;margin:4px 0 16px}
+.shead h2{font-size:1.25rem;color:var(--green-d);flex:0 0 auto}
+.shead .search{flex:1;max-width:280px;margin-left:auto;position:relative}
+.shead .search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);
+  border-radius:10px;background:var(--paper-2)}
+.shead .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--ink-soft)}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border-radius:10px;
+  font-weight:600;font-size:.95rem;transition:.15s;white-space:nowrap}
+.btn svg{width:17px;height:17px}
+.btn-primary{background:var(--honey);color:#fff;box-shadow:0 4px 12px -5px rgba(161,105,42,.6)}
+.btn-primary:hover{background:var(--honey-d)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-d)}
+.btn-ghost{background:var(--paper-2);border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--green);color:var(--green-d)}
+.btn-danger{background:var(--clay-bg);color:var(--clay)}
+.btn-danger:hover{background:#efd7cf}
+.btn-block{width:100%;justify-content:center}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.rcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.rcard:hover{transform:translateY(-2px);border-color:var(--green)}
+.rcard::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--honey))}
+.rcard .sprig{position:absolute;right:-6px;bottom:-8px;width:74px;height:74px;opacity:.08;color:var(--green)}
+.rcard h3{font-size:1.25rem;color:var(--green-d);margin-bottom:6px;padding-right:30px}
+.rcard .yield{display:inline-flex;align-items:center;gap:5px;font-size:.82rem;color:var(--honey-d);
+  background:#F6ECDB;padding:3px 9px;border-radius:20px;font-weight:600;margin-bottom:10px}
+.rcard .meta{font-size:.86rem;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap}
+.rcard .meta b{color:var(--ink);font-weight:600}
+
+.ilist{display:flex;flex-direction:column;gap:8px}
+.irow{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:13px 16px;box-shadow:0 1px 2px rgba(35,42,32,.04)}
+.irow .nm{flex:1;min-width:0}
+.irow .nm .t{font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.irow .nm .sub{font-size:.8rem;color:var(--ink-soft);margin-top:2px}
+.irow .qty{text-align:right;flex:0 0 auto}
+.irow .qty .big{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--green-d)}
+.irow .qty .big.neg{color:var(--clay)}
+.irow .qty .u{font-size:.78rem;color:var(--ink-soft)}
+.irow .acts{display:flex;gap:6px;flex:0 0 auto}
+.iconbtn{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;
+  background:var(--paper-2);border:1px solid var(--line);color:var(--ink-soft);transition:.15s}
+.iconbtn:hover{border-color:var(--green);color:var(--green-d)}
+.iconbtn.danger:hover{border-color:var(--clay);color:var(--clay)}
+.warn-note{margin-top:10px;font-size:.85rem;color:var(--clay);background:var(--clay-bg);padding:9px 12px;border-radius:8px;line-height:1.4}
+.iconbtn svg{width:17px;height:17px}
+.chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.02em}
+.chip.low{background:var(--clay-bg);color:var(--clay)}
+.chip.exp{background:#F4ECD6;color:#8a6a1d}
+.chip.sds{background:var(--green-bg,#e3ece4);color:var(--green-d);cursor:pointer}
+.chip.sds:hover{filter:brightness(.96)}
+.sds-cur{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:var(--paper,#faf7f1);border:1px solid var(--line,#e6e0d4);border-radius:9px;padding:8px 12px;margin-bottom:8px}
+.sds-cur .fn{font-size:.9rem;font-weight:600;word-break:break-all}
+.sds-cur .lnks{display:flex;gap:14px;white-space:nowrap}
+.lnk{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--green-d);border-bottom:1px solid currentColor;padding-bottom:1px}
+.lnk.danger{color:var(--clay)}
+.hint{font-size:.78rem;color:var(--ink-soft);margin-top:6px}
+input[type=file]{font-size:.9rem;width:100%}
+
+.log{display:flex;flex-direction:column;gap:8px}
+.logrow{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:13px 16px}
+.logrow .date{flex:0 0 auto;width:58px;text-align:center;border-right:1px solid var(--line-2);padding-right:12px}
+.logrow .date .d{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;color:var(--green-d);line-height:1}
+.logrow .date .m{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase}
+.logrow .body{flex:1;min-width:0}
+.logrow .body .t{font-weight:600}
+.logrow .body .s{font-size:.82rem;color:var(--ink-soft)}
+
+.empty{text-align:center;padding:54px 20px;color:var(--ink-soft)}
+.empty svg{width:54px;height:54px;color:var(--line);margin-bottom:12px}
+.empty h3{font-size:1.2rem;color:var(--green-d);margin-bottom:6px}
+.empty p{max-width:340px;margin:0 auto 18px}
+
+.detail .back{display:inline-flex;align-items:center;gap:6px;color:var(--ink-soft);font-weight:600;margin-bottom:14px;font-size:.92rem;cursor:pointer}
+.detail .back:hover{color:var(--green-d)}
+.detail-head{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow);margin-bottom:16px;position:relative;overflow:hidden}
+.detail-head::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--green),var(--honey))}
+.detail-head h2{font-size:1.7rem;color:var(--green-d);margin-bottom:8px}
+.detail-head .yield{display:inline-flex;align-items:center;gap:5px;font-size:.86rem;color:var(--honey-d);
+  background:#F6ECDB;padding:4px 11px;border-radius:20px;font-weight:600}
+.detail-head .desc{color:var(--ink-soft);margin-top:12px}
+.detail-head .cost{margin-top:12px;font-size:.92rem}
+.detail-head .cost b{font-family:'Fraunces',serif;color:var(--green-d)}
+.detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.panel h3{font-size:1.05rem;color:var(--green-d);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h3 svg{width:18px;height:18px;color:var(--honey)}
+.ing-line{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line-2)}
+.ing-line:last-child{border-bottom:none}
+.ing-line .nm{font-weight:500}
+.ing-line .amt{font-family:'Fraunces',serif;font-weight:600;color:var(--green-d);white-space:nowrap}
+.ing-line .miss{color:var(--clay);font-size:.78rem;font-weight:600;margin-left:8px}
+.steps{counter-reset:step;list-style:none;display:flex;flex-direction:column;gap:14px}
+.steps li{display:flex;gap:14px;align-items:flex-start}
+.steps li::before{counter-increment:step;content:counter(step);flex:0 0 auto;
+  width:28px;height:28px;border-radius:50%;background:var(--sage);color:var(--green-d);
+  font-family:'Fraunces',serif;font-weight:600;display:grid;place-items:center;font-size:.9rem}
+
+.modal-root{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center}
+.modal-root.open{display:flex}
+.scrim{position:absolute;inset:0;background:rgba(35,42,32,.42);backdrop-filter:blur(2px)}
+.sheet{position:relative;background:var(--paper-2);width:100%;max-width:560px;max-height:92vh;overflow-y:auto;
+  border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.25);animation:up .22s cubic-bezier(.2,.7,.3,1)}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+.sheet-head{position:sticky;top:0;background:var(--paper-2);padding:18px 22px 12px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;z-index:2}
+.sheet-head h2{font-size:1.25rem;color:var(--green-d)}
+.sheet-body{padding:18px 22px 24px}
+.sheet-foot{position:sticky;bottom:0;background:var(--paper-2);padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:10px}
+.closeX{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:var(--paper);color:var(--ink-soft)}
+.closeX:hover{color:var(--clay)}
+
+.field{margin-bottom:15px}
+.field label{display:block;font-size:.84rem;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(61,82,71,.12)}
+.field textarea{resize:vertical;min-height:60px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.subhead{font-size:.84rem;font-weight:700;color:var(--green-d);text-transform:uppercase;letter-spacing:.04em;
+  margin:20px 0 10px;display:flex;align-items:center;justify-content:space-between}
+.dynrow{display:grid;grid-template-columns:1fr 86px 38px;gap:8px;margin-bottom:8px;align-items:center}
+.dynrow.step{grid-template-columns:1fr 38px}
+.miniadd{display:inline-flex;align-items:center;gap:6px;color:var(--honey-d);font-weight:600;font-size:.88rem}
+.miniadd:hover{color:var(--honey)}
+.delrow{width:38px;height:42px;border-radius:9px;display:grid;place-items:center;background:var(--clay-bg);color:var(--clay)}
+
+.produce-warn{background:var(--clay-bg);border:1px solid #e6c4b8;border-radius:10px;padding:12px 14px;font-size:.88rem;color:#7d3b2a;margin-top:6px}
+.produce-warn b{color:var(--clay)}
+
+.prow{display:flex;align-items:center;gap:13px;padding:12px 4px;border-bottom:1px dashed var(--line-2);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.prow:last-of-type{border-bottom:none}
+.pcheck{flex:0 0 auto;width:32px;height:32px;border-radius:9px;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;color:#fff;transition:.12s}
+.prow:active .pcheck{transform:scale(.92)}
+.prow.done .pcheck{background:var(--green);border-color:var(--green)}
+.pcheck svg{width:19px;height:19px}
+.prow .pnm{flex:1;font-weight:500;min-width:0}
+.prow.done .pnm{text-decoration:line-through;color:var(--ink-soft)}
+.prow .pamt{font-family:'Fraunces',serif;font-weight:600;color:var(--green-d);white-space:nowrap}
+.prow.done .pamt{color:var(--ink-soft)}
+.prow .pmiss{color:var(--clay);font-size:.78rem;font-weight:600;margin-left:6px}
+.prog{font-size:.82rem;color:var(--ink-soft);font-weight:700}
+.prog b{color:var(--green-d)}
+.prog.alldone{color:var(--green-d)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--green-d);color:#fff;
+  padding:12px 20px;border-radius:30px;font-weight:600;font-size:.92rem;box-shadow:0 10px 30px -8px rgba(0,0,0,.4);
+  opacity:0;transition:.25s;z-index:80;pointer-events:none;display:flex;align-items:center;gap:9px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:18px;height:18px}
+
+@media(max-width:560px){
+  .nav button span{display:none}
+  .nav button{padding:12px 4px}
+  .dynrow{grid-template-columns:1fr 72px 36px}
+  .stat .n{font-size:1.45rem}
+}
+@media(min-width:600px){
+  .modal-root{align-items:center}
+  .sheet{border-radius:18px}
+}
+
+/* ---- auth gate ---- */
+.authgate{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:22px;background:var(--paper)}
+.authgate::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(60,76,63,.04) 1px,transparent 1px);background-size:22px 22px}
+.authcard{position:relative;background:var(--paper-2);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:30px 26px;width:100%;max-width:380px;text-align:center}
+.authmark{width:60px;height:60px;border-radius:16px;background:var(--green);display:grid;place-items:center;margin:0 auto 16px;box-shadow:var(--shadow)}
+.authmark svg{width:36px;height:36px}
+.authcard h1{font-size:1.7rem;color:var(--green-d);margin-bottom:6px}
+.authsub{color:var(--ink-soft);font-size:.92rem;margin-bottom:22px;line-height:1.45}
+.authcard .field{text-align:left}
+.autherr{background:var(--clay-bg);color:var(--clay);border-radius:9px;padding:9px 12px;font-size:.85rem;margin-bottom:12px;text-align:left}
+.authtoggle{display:block;width:100%;margin-top:14px;color:var(--honey-d);font-weight:600;font-size:.9rem}
+.authtoggle:hover{color:var(--honey)}
+.authlang{display:flex;gap:4px;justify-content:center;margin-top:18px}
+.authlang button{padding:5px 12px;border-radius:7px;font-weight:700;font-size:.78rem;color:var(--ink-soft);border:1px solid var(--line);background:var(--card)}
+.authlang button.active{background:var(--green);color:#fff;border-color:var(--green)}
+.offlinepill{position:fixed;left:16px;bottom:16px;z-index:70;display:none;align-items:center;gap:8px;background:#5b4636;color:#fff;padding:9px 15px;border-radius:30px;font-size:.84rem;font-weight:600;box-shadow:0 8px 24px -8px rgba(0,0,0,.4)}
+.offlinepill .dot{width:8px;height:8px;border-radius:50%;background:#e8a24a;flex:0 0 auto}
+#signoutBtn{width:40px;height:40px;border-radius:10px;background:var(--paper-2);border:1px solid var(--line);color:var(--ink-soft);display:grid;place-items:center;margin-left:8px;flex:0 0 auto}
+#signoutBtn:hover{border-color:var(--clay);color:var(--clay)}
+#signoutBtn svg{width:18px;height:18px}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Receptúra">
+</head>
+<body>
+<div id="authGate" class="authgate">
+  <div class="authcard">
+    <div class="authmark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#E5E9DD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21c0-6 0-10 0-14"/>
+        <path d="M12 11c-3 0-5-1.5-5.5-4.5C9 6.5 11 8 12 11z" fill="#E5E9DD" stroke="none"/>
+        <path d="M12 14c3 0 5-1.5 5.5-4.5C15 9.5 13 11 12 14z" fill="#BC7C36" stroke="none" opacity=".9"/>
+        <path d="M12 8c-2.2-.4-3.6-2-3.8-4.4C10.4 4 11.6 5.6 12 8z" fill="#E5E9DD" stroke="none"/>
+      </svg>
+    </div>
+    <h1>Receptúra</h1>
+    <p id="auth_sub" class="authsub"></p>
+    <div class="field"><label id="auth_email_l"></label><input id="auth_email" type="email" autocomplete="username" inputmode="email"></div>
+    <div class="field"><label id="auth_pw_l"></label><input id="auth_pw" type="password" autocomplete="current-password"></div>
+    <div id="auth_err" class="autherr" style="display:none"></div>
+    <button id="auth_primary" class="btn btn-primary btn-block" onclick="authPrimary()"></button>
+    <button id="auth_toggle" class="authtoggle" onclick="toggleAuthMode()"></button>
+    <div class="authlang"><button id="al-hu" onclick="setLang('hu')">HU</button><button id="al-en" onclick="setLang('en')">EN</button></div>
+  </div>
+</div>
+<div class="app" id="app" style="display:none">
+  <header class="topbar">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#E5E9DD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21c0-6 0-10 0-14"/>
+        <path d="M12 11c-3 0-5-1.5-5.5-4.5C9 6.5 11 8 12 11z" fill="#E5E9DD" stroke="none"/>
+        <path d="M12 14c3 0 5-1.5 5.5-4.5C15 9.5 13 11 12 14z" fill="#BC7C36" stroke="none" opacity=".9"/>
+        <path d="M12 8c-2.2-.4-3.6-2-3.8-4.4C10.4 4 11.6 5.6 12 8z" fill="#E5E9DD" stroke="none"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <h1>Receptúra</h1>
+      <div class="tag" id="brandTag">Krémműhely</div>
+    </div>
+    <div class="langtog">
+      <button id="lang-hu" class="active" onclick="setLang('hu')">HU</button>
+      <button id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+    <button id="signoutBtn" onclick="signOut()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
+  </header>
+
+  <nav class="nav">
+    <button id="tab-recipes" class="active" onclick="setView('recipes')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Receptek</span>
+    </button>
+    <button id="tab-ingredients" onclick="setView('ingredients')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L5 17a2.5 2.5 0 0 0 2 4h10a2.5 2.5 0 0 0 2-4l-5-7.5V2"/><path d="M8.5 2h7"/><path d="M7 14h10"/></svg>
+      <span>Alapanyagok</span>
+    </button>
+    <button id="tab-log" onclick="setView('log')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/></svg>
+      <span>Napló</span>
+    </button>
+  </nav>
+
+  <main id="view"></main>
+</div>
+
+<div class="modal-root" id="modalRoot"><div class="scrim" onclick="closeModal()"></div><div id="sheet" class="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<div class="offlinepill" id="offlinePill"><span class="dot"></span><span></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============ i18n ============ */
+const T = {
+  hu:{
+    tagline:'Krémműhely',
+    nav_recipes:'Receptek', nav_ingredients:'Alapanyagok', nav_log:'Napló',
+    stat_recipes:'recept', stat_ingredients:'alapanyag', stat_low:'alacsony készlet',
+    search:'Keresés…', new_recipe:'Új recept', new_ingredient:'Új alapanyag',
+    recipes_title:'Receptek', ingredients_title:'Alapanyagok', log_title:'Gyártási napló',
+    empty_recipes_title:'Még nincs recept', empty_recipes_text:'Vidd fel az első krémreceptet — összetevők, mennyiségek, lépések.',
+    empty_ingredients_title:'Még nincs alapanyag', empty_ingredients_text:'Vidd fel a hozzávalókat a készlettel együtt — a receptek innen veszik a mennyiségeket.',
+    empty_log_title:'Még üres a napló', empty_log_text:'Amikor egy receptet legyártasz, ide kerül a bejegyzés, és a készlet automatikusan csökken.',
+    no_results:'Nincs találat', no_results_named:'Nincs „{0}” nevű recept.',
+    count_ingredient:'összetevő', per_batch:'/adag', per_batch_word:'adag',
+    back_recipes:'Vissza a receptekhez', est_cost_label:'Becsült alapanyagköltség:',
+    make_batch:'Legyártás', edit:'Szerkesztés', del:'Törlés',
+    ingredients_panel:'Összetevők', method_panel:'Elkészítés',
+    no_ingredients_line:'Nincs összetevő megadva.', no_method:'Nincs megadott elkészítési lépés.',
+    low_inline:'kevés készleten', deleted_ingredient:'⚠ törölt alapanyag',
+    chip_low:'Alacsony', chip_exp:'Lejár', min_abbr:'min.', no_price:'nincs ár', expires:'lejár', in_stock:'készleten',
+    adjust_title:'Készlet — {0}', currently:'Jelenleg:', amount:'Mennyiség', use_btn:'Felhasználás', add_stock_btn:'Bevételezés',
+    stock_added:'Készlethez adva', stock_removed:'Készletből levonva', enter_amount:'Adj meg egy mennyiséget',
+    edit_ingredient:'Alapanyag szerkesztése', f_name:'Megnevezés', f_unit:'Egység', f_stock:'Jelenlegi készlet',
+    f_min:'Min. készlet (figyelmeztetés)', f_price:'Ár ({0} / egység)', f_expiry:'Lejárat', f_notes:'Megjegyzés',
+    f_batch:'Batch szám / Lot', f_sds:'Biztonsági adatlap (SDS)', sds_hint:'PDF vagy kép feltöltése (a szállító SDS-e).', sds_view:'Megnézés', sds_remove:'Eltávolítás', sds_will_remove:'Mentéskor eltávolítva.', sds_uploading:'Feltöltés…', sds_upload_failed:'A feltöltés nem sikerült', sds_open_failed:'Az adatlap nem nyitható meg', sds_chip:'SDS', batch_abbr:'Lot',
+    optional:'opcionális', ph_name:'pl. Sheavaj', cancel:'Mégse', save:'Mentés',
+    need_name:'Adj meg egy nevet', ingredient_added:'Alapanyag hozzáadva', ingredient_updated:'Alapanyag frissítve',
+    edit_recipe:'Recept szerkesztése', r_name:'Recept neve', ph_recipe:'pl. Hidratáló arckrém',
+    r_yield:'Kiadja (hozam / adag)', ph_yield:'pl. 100 ml', r_desc:'Leírás',
+    ingredients_section:'Összetevők', add_ingredient_btn:'Összetevő hozzáadása',
+    method_section:'Elkészítés lépései', add_step_btn:'Lépés hozzáadása',
+    choose:'— válassz —', add_ing_first:'— előbb vigy fel alapanyagot —', ph_amount:'menny.', ph_step:'{0}. lépés',
+    need_recipe_name:'Adj meg egy recept nevet', recipe_created:'Recept létrehozva', recipe_updated:'Recept frissítve',
+    delete_recipe_title:'Recept törlése', delete_recipe_confirm:'Biztosan törlöd a(z) {0} receptet? Ez nem visszavonható.', recipe_deleted:'Recept törölve',
+    delete_ingredient_title:'Alapanyag törlése', delete_ingredient_confirm:'Biztosan törlöd a(z) {0} alapanyagot? Ez nem visszavonható.', ingredient_deleted:'Alapanyag törölve', ingredient_in_use:'Ezt {0} recept használja — azokban „törölt alapanyag”-ként jelenik majd meg.',
+    produce_title:'Legyártás', how_many:'Hány adagot készítesz?', usage_tick:'Felhasználás — pipáld ki, amit beletettél',
+    added_count:'{0} / {1} betéve', short_by:'hiány: {0}', no_ingredients_recipe:'Ehhez a recepthez nincs összetevő.',
+    warn_label:'Figyelem:', warn_text:'{0} alapanyagból nincs elég készlet. Legyártás után a készlet mínuszba megy — vásárlásra emlékeztet.',
+    produce_btn:'Legyártás & készlet levonása', need_batches:'Adj meg adagszámot',
+    delete_entry_title:'Bejegyzés törlése', entry_deleted:'Naplóbejegyzés törölve', adjust_stock_title:'Készlet módosítása',
+    made:'Legyártva: {0} {1} {2}',
+    auth_sub:'Jelentkezz be a közös háztartási fiókkal — minden eszközön ugyanazt látjátok.',
+    auth_email:'E-mail', auth_password:'Jelszó', auth_signin:'Bejelentkezés', auth_signup:'Fiók létrehozása',
+    auth_to_signup:'Nincs még fiókod? Regisztrálj', auth_to_signin:'Van már fiókod? Jelentkezz be',
+    auth_fill:'Add meg az e-mailt és a jelszót', auth_wait:'Pillanat…', auth_check_email:'Erősítsd meg az e-mailt a kapott linken, majd jelentkezz be.',
+    auth_signout:'Kijelentkezés', offline_label:'Nincs kapcsolat — offline mentés',
+  },
+  en:{
+    tagline:'Cream workshop',
+    nav_recipes:'Recipes', nav_ingredients:'Ingredients', nav_log:'Log',
+    stat_recipes:'recipes', stat_ingredients:'ingredients', stat_low:'low stock',
+    search:'Search…', new_recipe:'New recipe', new_ingredient:'New ingredient',
+    recipes_title:'Recipes', ingredients_title:'Ingredients', log_title:'Batch log',
+    empty_recipes_title:'No recipes yet', empty_recipes_text:'Add your first cream recipe — ingredients, amounts, method.',
+    empty_ingredients_title:'No ingredients yet', empty_ingredients_text:'Add your materials with their stock — recipes draw their amounts from here.',
+    empty_log_title:'Nothing logged yet', empty_log_text:'When you make a batch, it’s logged here and stock is deducted automatically.',
+    no_results:'No results', no_results_named:'No recipe named “{0}”.',
+    count_ingredient:'ingredients', per_batch:'/batch', per_batch_word:'batch',
+    back_recipes:'Back to recipes', est_cost_label:'Estimated material cost:',
+    make_batch:'Make batch', edit:'Edit', del:'Delete',
+    ingredients_panel:'Ingredients', method_panel:'Method',
+    no_ingredients_line:'No ingredients added.', no_method:'No method steps added.',
+    low_inline:'low stock', deleted_ingredient:'⚠ deleted ingredient',
+    chip_low:'Low', chip_exp:'Expiring', min_abbr:'min.', no_price:'no price', expires:'expires', in_stock:'in stock',
+    adjust_title:'Stock — {0}', currently:'Currently:', amount:'Amount', use_btn:'Use', add_stock_btn:'Add stock',
+    stock_added:'Added to stock', stock_removed:'Removed from stock', enter_amount:'Enter an amount',
+    edit_ingredient:'Edit ingredient', f_name:'Name', f_unit:'Unit', f_stock:'Current stock',
+    f_min:'Min. stock (alert)', f_price:'Price ({0} / unit)', f_expiry:'Expiry', f_notes:'Notes',
+    f_batch:'Batch / Lot no.', f_sds:'Safety data sheet (SDS)', sds_hint:'Upload a PDF or image (the supplier’s SDS).', sds_view:'View', sds_remove:'Remove', sds_will_remove:'Will be removed on save.', sds_uploading:'Uploading…', sds_upload_failed:'Upload failed', sds_open_failed:'Couldn’t open the sheet', sds_chip:'SDS', batch_abbr:'Lot',
+    optional:'optional', ph_name:'e.g. Shea butter', cancel:'Cancel', save:'Save',
+    need_name:'Enter a name', ingredient_added:'Ingredient added', ingredient_updated:'Ingredient updated',
+    edit_recipe:'Edit recipe', r_name:'Recipe name', ph_recipe:'e.g. Moisturising face cream',
+    r_yield:'Yield (per batch)', ph_yield:'e.g. 100 ml', r_desc:'Description',
+    ingredients_section:'Ingredients', add_ingredient_btn:'Add ingredient',
+    method_section:'Method steps', add_step_btn:'Add step',
+    choose:'— choose —', add_ing_first:'— add an ingredient first —', ph_amount:'amt', ph_step:'Step {0}',
+    need_recipe_name:'Enter a recipe name', recipe_created:'Recipe created', recipe_updated:'Recipe updated',
+    delete_recipe_title:'Delete recipe', delete_recipe_confirm:'Delete the {0} recipe? This can’t be undone.', recipe_deleted:'Recipe deleted',
+    delete_ingredient_title:'Delete ingredient', delete_ingredient_confirm:'Delete {0}? This can’t be undone.', ingredient_deleted:'Ingredient deleted', ingredient_in_use:'Used in {0} recipe(s) — it will show as “deleted ingredient” there.',
+    produce_title:'Make batch', how_many:'How many batches?', usage_tick:'Usage — tick off what you’ve added',
+    added_count:'{0} of {1} added', short_by:'short: {0}', no_ingredients_recipe:'This recipe has no ingredients.',
+    warn_label:'Heads up:', warn_text:'{0} material(s) are short on stock. After making the batch, stock goes negative — a reminder to restock.',
+    produce_btn:'Make batch & deduct stock', need_batches:'Enter a number of batches',
+    delete_entry_title:'Delete entry', entry_deleted:'Log entry deleted', adjust_stock_title:'Adjust stock',
+    made:'Made: {0} {1} of {2}',
+    auth_sub:'Sign in with your shared household account — every device sees the same data.',
+    auth_email:'Email', auth_password:'Password', auth_signin:'Sign in', auth_signup:'Create account',
+    auth_to_signup:'No account yet? Sign up', auth_to_signin:'Already have an account? Sign in',
+    auth_fill:'Enter your email and password', auth_wait:'One moment…', auth_check_email:'Confirm your email via the link we sent, then sign in.',
+    auth_signout:'Sign out', offline_label:'No connection — saved offline',
+  }
+};
+const CUR = { hu:{sym:'Ft',before:false,locale:'hu-HU',dec:0}, en:{sym:'£',before:true,locale:'en-GB',dec:2} };
+const MONTHS = {
+  hu:['jan','feb','már','ápr','máj','jún','júl','aug','szep','okt','nov','dec'],
+  en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+};
+const UNIT_LABEL = {
+  hu:{ g:'g', ml:'ml', db:'db', csepp:'csepp', '%':'%' },
+  en:{ g:'g', ml:'ml', db:'pcs', csepp:'drops', '%':'%' },
+};
+/* localized built-in example content (translates until the user edits it) */
+const SEED_TEXT = {
+  hu:{
+    ing:{ shea:'Sheavaj', jojoba:'Jojoba olaj', emulwax:'Emulgeáló viasz', water:'Desztillált víz', vite:'E-vitamin', lavender:'Levendula illóolaj' },
+    rec:{ lavcream:{ name:'Hidratáló levendula arckrém', desc:'Példa recept — nyugodtan szerkeszd vagy töröld.',
+      steps:[
+        'Olajfázis (sheavaj, jojoba olaj, emulgeáló viasz) vízgőz fölött 70 °C-ra melegítése.',
+        'Vízfázis (desztillált víz) külön edényben szintén 70 °C-ra melegítése.',
+        'A vízfázist lassan az olajfázishoz önteni, botmixerrel folyamatosan keverni emulzióig.',
+        '40 °C alá hűlés után az E-vitamint és a levendula illóolajat hozzáadni.',
+        'Fertőtlenített tégelybe tölteni, címkézni a dátummal.',
+      ] } }
+  },
+  en:{
+    ing:{ shea:'Shea butter', jojoba:'Jojoba oil', emulwax:'Emulsifying wax', water:'Distilled water', vite:'Vitamin E', lavender:'Lavender essential oil' },
+    rec:{ lavcream:{ name:'Moisturising lavender face cream', desc:'Example recipe — feel free to edit or delete it.',
+      steps:[
+        'Heat the oil phase (shea butter, jojoba oil, emulsifying wax) over a water bath to 70 °C.',
+        'Heat the water phase (distilled water) separately, also to 70 °C.',
+        'Slowly pour the water phase into the oil phase, blending continuously with a stick blender until emulsified.',
+        'Once cooled below 40 °C, add the vitamin E and lavender essential oil.',
+        'Pour into a sanitised jar and label it with the date.',
+      ] } }
+  }
+};
+
+let lang = 'hu';
+function t(k){ let s=(T[lang]&&k in T[lang])?T[lang][k]:k; for(let i=1;i<arguments.length;i++){ s=s.split('{'+(i-1)+'}').join(arguments[i]); } return s; }
+function batchWord(n){ return lang==='hu' ? 'adag' : (n===1?'batch':'batches'); }
+function unitLabel(u){ return (UNIT_LABEL[lang]&&UNIT_LABEL[lang][u])||u; }
+
+/* ============ seed-content resolvers (localized example) ============ */
+function ingName(g){ return (g.seedKey && SEED_TEXT[lang].ing[g.seedKey]) ? SEED_TEXT[lang].ing[g.seedKey] : g.name; }
+function seedRec(r){ return (r.seedKey && SEED_TEXT[lang].rec[r.seedKey]) ? SEED_TEXT[lang].rec[r.seedKey] : null; }
+function recName(r){ const s=seedRec(r); return s?s.name:r.name; }
+function recDesc(r){ const s=seedRec(r); return s?s.desc:(r.description||''); }
+function recSteps(r){ const s=seedRec(r); return s?s.steps:(r.steps||[]); }
+
+/* ============ icons ============ */
+const I = {
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L5 17a2.5 2.5 0 0 0 2 4h10a2.5 2.5 0 0 0 2-4l-5-7.5V2"/><path d="M8.5 2h7M7 14h10"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  beaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3h15M6 3v7L3.8 18a2 2 0 0 0 1.9 2.6h12.6A2 2 0 0 0 20.2 18L18 10V3"/><path d="M6 13h12"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+  sprig:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c0-7 0-11 0-16M12 12c-4 0-7-2-7.6-6.2C8 6 11 8 12 12zM12 16c4 0 7-2 7.6-6.2C16 10 13 12 12 16z"/></svg>',
+};
+
+/* ============ state ============ */
+const UNITS = ['g','ml','db','csepp','%'];
+let state = { ingredients:[], recipes:[], batches:[], lang:'hu' };
+let view = 'recipes';
+let detailId = null;
+let search = { recipes:'', ingredients:'' };
+
+/* ============ Supabase configuration ============ */
+/* SETUP:
+   1) Create a free project at https://supabase.com
+   2) Run supabase-schema.sql in the project's SQL editor (see README).
+   3) Project Settings -> API: paste the Project URL and the "anon public" key below. */
+const SUPABASE_URL = "https://bonhrjfulvadwhpvyrqy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_kAYOEcSnjte_a1tB5iX-YA_v5vXvyYJ";   // sb_publishable_...
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } });
+let authed=false, online=true, lastLocalWrite=0, reconcileTimer=null, pullTimer=null, authMode='signin';
+
+/* ---- local cache: instant load + offline ---- */
+const CACHE_KEY='receptura.cache.v2';
+function cacheSave(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ingredients:state.ingredients,recipes:state.recipes,batches:state.batches,lang:lang})); }catch(e){} }
+function cacheLoad(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw){ const d=JSON.parse(raw); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[]; state.batches=d.batches||[]; if(d.lang) state.lang=d.lang; return true; } }catch(e){} return false; }
+
+/* ---- map app objects <-> database columns ---- */
+const toRow = {
+  ingredient: g => ({ id:g.id, name:g.name, unit:g.unit, stock:num(g.stock), min_stock:num(g.minStock), price:num(g.price), expiry:g.expiry||null, notes:g.notes||'', batch:g.batch||null, sds_path:g.sdsPath||null, sds_name:g.sdsName||null, seed_key:g.seedKey||null }),
+  recipe: r => ({ id:r.id, name:r.name, yield_text:r.yield||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seed_key:r.seedKey||null }),
+  batch: b => ({ id:b.id, date:b.date, recipe_id:b.recipeId, recipe_name:b.recipeName, multiplier:num(b.multiplier), lines:b.lines||[] }),
+};
+const fromRow = {
+  ingredient: r => ({ id:r.id, name:r.name, unit:r.unit, stock:Number(r.stock)||0, minStock:Number(r.min_stock)||0, price:Number(r.price)||0, expiry:r.expiry||'', notes:r.notes||'', batch:r.batch||'', sdsPath:r.sds_path||'', sdsName:r.sds_name||'', seedKey:r.seed_key||undefined }),
+  recipe: r => ({ id:r.id, name:r.name, yield:r.yield_text||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seedKey:r.seed_key||undefined }),
+  batch: r => ({ id:r.id, date:r.date, recipeId:r.recipe_id, recipeName:r.recipe_name, multiplier:Number(r.multiplier)||0, lines:r.lines||[] }),
+};
+
+/* ---- pull everything from Supabase ---- */
+async function pull(){
+  const [i,r,b] = await Promise.all([ sb.from('ingredients').select('*'), sb.from('recipes').select('*'), sb.from('batches').select('*') ]);
+  if(i.error||r.error||b.error) throw (i.error||r.error||b.error);
+  state.ingredients = i.data.map(fromRow.ingredient);
+  state.recipes = r.data.map(fromRow.recipe);
+  state.batches = b.data.map(fromRow.batch);
+  cacheSave();
+}
+
+/* ---- saveState: cache immediately, then debounced sync to Supabase ---- */
+function saveState(){ cacheSave(); scheduleReconcile(); }
+function scheduleReconcile(){ if(!authed) return; clearTimeout(reconcileTimer); reconcileTimer=setTimeout(reconcile, 350); }
+async function reconcile(){
+  if(!authed) return;
+  try{
+    lastLocalWrite=Date.now();
+    if(state.ingredients.length){ const {error}=await sb.from('ingredients').upsert(state.ingredients.map(toRow.ingredient)); if(error) throw error; }
+    if(state.recipes.length){ const {error}=await sb.from('recipes').upsert(state.recipes.map(toRow.recipe)); if(error) throw error; }
+    if(state.batches.length){ const {error}=await sb.from('batches').upsert(state.batches.map(toRow.batch)); if(error) throw error; }
+    await reconcileDeletes('ingredients', state.ingredients);
+    await reconcileDeletes('recipes', state.recipes);
+    await reconcileDeletes('batches', state.batches);
+    lastLocalWrite=Date.now();
+    setOffline(false);
+  }catch(e){ console.warn('Sync deferred:', e&&e.message); setOffline(true); }
+}
+async function reconcileDeletes(table, localArr){
+  const { data, error } = await sb.from(table).select('id'); if(error) throw error;
+  const ids = new Set(localArr.map(x=>x.id));
+  const del = data.filter(row=>!ids.has(row.id)).map(row=>row.id);
+  if(del.length){ const { error:e2 } = await sb.from(table).delete().in('id', del); if(e2) throw e2; }
+}
+
+/* ---- realtime: pick up changes from other devices ---- */
+function subscribeRealtime(){
+  sb.channel('receptura-rt')
+    .on('postgres_changes', { event:'*', schema:'public' }, () => {
+      if(Date.now()-lastLocalWrite < 2500) return;            // ignore our own write echo
+      clearTimeout(pullTimer);
+      pullTimer=setTimeout(async ()=>{ try{ await pull(); if(!document.getElementById('modalRoot').classList.contains('open')) render(); }catch(e){} }, 400);
+    }).subscribe();
+}
+
+/* ---- offline indicator ---- */
+function setOffline(off){ online=!off; const p=document.getElementById('offlinePill'); if(p) p.style.display = off?'flex':'none'; }
+
+/* ---- auth screen ---- */
+function showAuth(){ document.getElementById('app').style.display='none'; const so=document.getElementById('signoutBtn'); if(so) so.style.display='none'; const g=document.getElementById('authGate'); g.style.display='flex'; applyAuthChrome(); }
+function applyAuthChrome(){
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('auth_sub', t('auth_sub')); set('auth_email_l', t('auth_email')); set('auth_pw_l', t('auth_password'));
+  set('auth_primary', authMode==='signin'?t('auth_signin'):t('auth_signup'));
+  set('auth_toggle', authMode==='signin'?t('auth_to_signup'):t('auth_to_signin'));
+  const ah=document.getElementById('al-hu'), ae=document.getElementById('al-en');
+  if(ah) ah.classList.toggle('active',lang==='hu'); if(ae) ae.classList.toggle('active',lang==='en');
+  document.documentElement.lang=lang;
+}
+function toggleAuthMode(){ authMode = authMode==='signin'?'signup':'signin'; const e=document.getElementById('auth_err'); if(e) e.style.display='none'; applyAuthChrome(); }
+function authError(msg){ const e=document.getElementById('auth_err'); if(e){ e.textContent=msg; e.style.display='block'; } }
+async function authPrimary(){
+  const email=document.getElementById('auth_email').value.trim();
+  const pw=document.getElementById('auth_pw').value;
+  if(!email||!pw){ authError(t('auth_fill')); return; }
+  document.getElementById('auth_primary').textContent=t('auth_wait');
+  try{
+    const res = authMode==='signin' ? await sb.auth.signInWithPassword({email,password:pw}) : await sb.auth.signUp({email,password:pw});
+    if(res.error){ authError(res.error.message); applyAuthChrome(); return; }
+    if(!res.data.session){ authError(t('auth_check_email')); applyAuthChrome(); return; }
+    /* onAuthStateChange starts the app */
+  }catch(e){ authError((e&&e.message)||'Error'); applyAuthChrome(); }
+}
+async function signOut(){ try{ await sb.auth.signOut(); }catch(e){} }
+
+/* ---- start the app once signed in ---- */
+async function startApp(){
+  document.getElementById('authGate').style.display='none';
+  document.getElementById('app').style.display='';
+  const so=document.getElementById('signoutBtn'); if(so) so.style.display='';
+  cacheLoad(); lang = state.lang||lang||'hu'; state.lang=lang;
+  applyChrome(); render();                                   // instant from cache
+  try{
+    await pull();
+    if(state.ingredients.length===0 && state.recipes.length===0 && !localStorage.getItem('receptura.seeded')){
+      seed(); localStorage.setItem('receptura.seeded','1'); saveState();
+    }
+    applyChrome(); render(); setOffline(false);
+  }catch(e){ setOffline(true); }
+  subscribeRealtime();
+}
+
+/* ============ helpers ============ */
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n=parseFloat(String(v).replace(',','.')); return isNaN(n)?0:n; };
+const fmtNum = n => (Math.round(n*100)/100).toLocaleString(CUR[lang].locale);
+function money(n){ const c=CUR[lang]; const v=n.toLocaleString(c.locale,{minimumFractionDigits:c.dec,maximumFractionDigits:c.dec}); return c.before? c.sym+v : v+' '+c.sym; }
+function priceUnit(n,unit){ const c=CUR[lang]; const v=fmtNum(n); return c.before?`${c.sym}${v}/${esc(unitLabel(unit))}`:`${v} ${c.sym}/${esc(unitLabel(unit))}`; }
+const ing = id => state.ingredients.find(x=>x.id===id);
+const recipeCost = r => r.items.reduce((s,it)=>{ const g=ing(it.ingredientId); return s + (g? num(g.price)*num(it.amount):0); },0);
+const isLow = g => num(g.minStock)>0 && num(g.stock) <= num(g.minStock);
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.innerHTML = I.check + '<span>'+esc(msg)+'</span>';
+  el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+/* ============ language ============ */
+function applyChrome(){
+  document.getElementById('brandTag').textContent=t('tagline');
+  document.querySelector('#tab-recipes span').textContent=t('nav_recipes');
+  document.querySelector('#tab-ingredients span').textContent=t('nav_ingredients');
+  document.querySelector('#tab-log span').textContent=t('nav_log');
+  document.getElementById('lang-hu').classList.toggle('active',lang==='hu');
+  document.getElementById('lang-en').classList.toggle('active',lang==='en');
+  const so=document.getElementById('signoutBtn'); if(so) so.title=t('auth_signout');
+  const op=document.getElementById('offlinePill'); if(op){ const s=op.querySelector('span:last-child'); if(s) s.textContent=t('offline_label'); }
+  document.documentElement.lang=lang;
+}
+async function setLang(l){
+  if(l===lang) return;
+  lang=l; state.lang=l; cacheSave();
+  applyChrome();
+  if(authed){ closeModal(); render(); } else { applyAuthChrome(); }
+}
+
+/* ============ view switch ============ */
+function setView(v){
+  view=v; detailId=null;
+  ['recipes','ingredients','log'].forEach(k=>document.getElementById('tab-'+k).classList.toggle('active',k===v));
+  render();
+}
+function render(){
+  const el=document.getElementById('view');
+  if(detailId){ el.innerHTML=renderDetail(detailId); return; }
+  if(view==='recipes') el.innerHTML=renderRecipes();
+  else if(view==='ingredients') el.innerHTML=renderIngredients();
+  else el.innerHTML=renderLog();
+}
+
+/* ============ RECIPES ============ */
+function renderRecipes(){
+  const low=state.ingredients.filter(isLow).length;
+  const stats=`<div class="stats">
+    <div class="stat"><div class="n">${state.recipes.length}</div><div class="l">${t('stat_recipes')}</div></div>
+    <div class="stat"><div class="n">${state.ingredients.length}</div><div class="l">${t('stat_ingredients')}</div></div>
+    <div class="stat ${low?'warn':''}"><div class="n">${low}</div><div class="l">${t('stat_low')}</div></div>
+  </div>`;
+  const q=search.recipes.toLowerCase();
+  const list=state.recipes.filter(r=>recName(r).toLowerCase().includes(q));
+  const head=`<div class="shead"><h2>${t('recipes_title')}</h2>
+    <div class="search">${I.search}<input placeholder="${t('search')}" value="${esc(search.recipes)}" oninput="search.recipes=this.value;rerenderList('recipes')"></div>
+    <button class="btn btn-primary" onclick="openRecipeForm()">${I.plus}<span>${t('new_recipe')}</span></button></div>`;
+  let body;
+  if(state.recipes.length===0){
+    body=emptyState(I.flask,t('empty_recipes_title'),t('empty_recipes_text'),t('new_recipe'),'openRecipeForm()');
+  } else if(list.length===0){
+    body=`<div class="empty"><h3>${t('no_results')}</h3><p>${t('no_results_named',esc(search.recipes))}</p></div>`;
+  } else {
+    body=`<div class="grid">`+list.map(r=>{
+      const cost=recipeCost(r);
+      return `<div class="rcard" onclick="openDetail('${r.id}')">
+        <div class="sprig">${I.sprig}</div>
+        <h3>${esc(recName(r))}</h3>
+        ${r.yield?`<div class="yield">${I.beaker}${esc(r.yield)}</div>`:''}
+        <div class="meta"><span><b>${r.items.length}</b> ${t('count_ingredient')}</span>${cost>0?`<span>≈ <b>${money(cost)}</b>${t('per_batch')}</span>`:''}</div>
+      </div>`;
+    }).join('')+`</div>`;
+  }
+  return stats+head+body;
+}
+
+/* ============ DETAIL ============ */
+function renderDetail(id){
+  const r=state.recipes.find(x=>x.id===id);
+  if(!r){ detailId=null; return renderRecipes(); }
+  const cost=recipeCost(r);
+  const items=r.items.map(it=>{
+    const g=ing(it.ingredientId);
+    const name=g?ingName(g):t('deleted_ingredient'); const unit=g?unitLabel(g.unit):'';
+    const short=g && num(g.stock)<num(it.amount);
+    return `<div class="ing-line"><span class="nm">${esc(name)}${short?`<span class="miss">${t('low_inline')}</span>`:''}</span>
+      <span class="amt">${fmtNum(it.amount)} ${esc(unit)}</span></div>`;
+  }).join('') || `<div class="ing-line"><span class="nm" style="color:var(--ink-soft)">${t('no_ingredients_line')}</span></div>`;
+  const sList=recSteps(r);
+  const steps=(sList&&sList.length)?`<ol class="steps">${sList.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`
+    :`<p style="color:var(--ink-soft)">${t('no_method')}</p>`;
+  const desc=recDesc(r);
+  return `<div class="detail">
+    <a class="back" onclick="closeDetail()">${I.back} ${t('back_recipes')}</a>
+    <div class="detail-head">
+      <h2>${esc(recName(r))}</h2>
+      ${r.yield?`<div class="yield">${I.beaker}${esc(r.yield)} / ${t('per_batch_word')}</div>`:''}
+      ${desc?`<div class="desc">${esc(desc)}</div>`:''}
+      ${cost>0?`<div class="cost">${t('est_cost_label')} <b>${money(cost)}</b> / ${t('per_batch_word')}</div>`:''}
+      <div class="detail-actions">
+        <button class="btn btn-green" onclick="openProduce('${r.id}')">${I.beaker}${t('make_batch')}</button>
+        <button class="btn btn-ghost" onclick="openRecipeForm('${r.id}')">${I.edit}${t('edit')}</button>
+        <button class="btn btn-danger" onclick="confirmDeleteRecipe('${r.id}')">${I.trash}${t('del')}</button>
+      </div>
+    </div>
+    <div class="panel"><h3>${I.list} ${t('ingredients_panel')}</h3>${items}</div>
+    <div class="panel"><h3>${I.flask} ${t('method_panel')}</h3>${steps}</div>
+  </div>`;
+}
+function openDetail(id){ detailId=id; render(); window.scrollTo(0,0); }
+function closeDetail(){ detailId=null; render(); }
+
+/* ============ INGREDIENTS ============ */
+function renderIngredients(){
+  const q=search.ingredients.toLowerCase();
+  const list=state.ingredients.filter(g=>ingName(g).toLowerCase().includes(q))
+    .sort((a,b)=>(isLow(b)-isLow(a))||ingName(a).localeCompare(ingName(b),lang));
+  const head=`<div class="shead"><h2>${t('ingredients_title')}</h2>
+    <div class="search">${I.search}<input placeholder="${t('search')}" value="${esc(search.ingredients)}" oninput="search.ingredients=this.value;rerenderList('ingredients')"></div>
+    <button class="btn btn-primary" onclick="openIngredientForm()">${I.plus}<span>${t('new_ingredient')}</span></button></div>`;
+  let body;
+  if(state.ingredients.length===0){
+    body=emptyState(I.flask,t('empty_ingredients_title'),t('empty_ingredients_text'),t('new_ingredient'),'openIngredientForm()');
+  } else if(list.length===0){
+    body=`<div class="empty"><h3>${t('no_results')}</h3></div>`;
+  } else {
+    body=`<div class="ilist">`+list.map(g=>{
+      const stock=num(g.stock), low=isLow(g), ul=unitLabel(g.unit);
+      const exp=g.expiry?new Date(g.expiry):null;
+      const expSoon=exp && (exp-new Date())/86400000<30;
+      const sub=`${num(g.minStock)>0?`${t('min_abbr')} ${fmtNum(g.minStock)} ${esc(ul)} · `:''}${g.price>0?priceUnit(g.price,g.unit):t('no_price')}${g.expiry?` · ${t('expires')} ${esc(g.expiry)}`:''}${g.batch?` · ${t('batch_abbr')} ${esc(g.batch)}`:''}`;
+      return `<div class="irow">
+        <div class="nm"><div class="t">${esc(ingName(g))}
+          ${low?`<span class="chip low">${t('chip_low')}</span>`:''}
+          ${expSoon?`<span class="chip exp">${t('chip_exp')}</span>`:''}
+          ${g.sdsPath?`<span class="chip sds" title="${t('f_sds')}" onclick="event.stopPropagation();openSDS('${esc(g.sdsPath)}')">${t('sds_chip')}</span>`:''}</div>
+          <div class="sub">${sub}</div></div>
+        <div class="qty"><div class="big ${stock<0?'neg':''}">${fmtNum(stock)}</div><div class="u">${esc(ul)} ${t('in_stock')}</div></div>
+        <div class="acts">
+          <button class="iconbtn" title="${t('adjust_stock_title')}" onclick="openAdjust('${g.id}')">${I.plus}</button>
+          <button class="iconbtn" title="${t('edit')}" onclick="openIngredientForm('${g.id}')">${I.edit}</button>
+          <button class="iconbtn danger" title="${t('del')}" onclick="confirmDeleteIngredient('${g.id}')">${I.trash}</button>
+        </div>
+      </div>`;
+    }).join('')+`</div>`;
+  }
+  return head+body;
+}
+
+/* ============ LOG ============ */
+function renderLog(){
+  const head=`<div class="shead"><h2>${t('log_title')}</h2></div>`;
+  if(state.batches.length===0){
+    return head+emptyState(I.beaker,t('empty_log_title'),t('empty_log_text'),'','');
+  }
+  const sorted=[...state.batches].sort((a,b)=>b.date.localeCompare(a.date));
+  const rows=sorted.map(b=>{
+    const d=new Date(b.date);
+    const lines=b.lines.map(l=>`${esc(l.name)} ${fmtNum(l.amount)} ${esc(unitLabel(l.unit))}`).join(' · ');
+    return `<div class="logrow">
+      <div class="date"><div class="d">${d.getDate()}</div><div class="m">${MONTHS[lang][d.getMonth()]}</div></div>
+      <div class="body"><div class="t">${esc(b.recipeName)} — ${fmtNum(b.multiplier)} ${batchWord(b.multiplier)}</div>
+        <div class="s">${lines||'—'}</div></div>
+      <button class="iconbtn" title="${t('delete_entry_title')}" onclick="deleteBatch('${b.id}')">${I.trash}</button>
+    </div>`;
+  }).join('');
+  return head+`<div class="log">${rows}</div>`;
+}
+
+function emptyState(icon,title,text,btnLabel,btnAction){
+  return `<div class="empty">${icon}<h3>${title}</h3><p>${text}</p>
+    ${btnLabel?`<button class="btn btn-primary" onclick="${btnAction}">${I.plus}${btnLabel}</button>`:''}</div>`;
+}
+function rerenderList(which){
+  const g=document.getElementById('view');
+  g.innerHTML = which==='recipes'?renderRecipes():renderIngredients();
+  const inp=document.querySelector('.search input'); if(inp){ inp.focus(); const v=which==='recipes'?search.recipes:search.ingredients; try{inp.setSelectionRange(v.length,v.length);}catch(e){} }
+}
+
+/* ============ MODAL ============ */
+function openModal(html){ document.getElementById('sheet').innerHTML=html; document.getElementById('modalRoot').classList.add('open'); }
+function closeModal(){ document.getElementById('modalRoot').classList.remove('open'); }
+
+/* ============ INGREDIENT FORM ============ */
+let sdsPendingRemove=false;
+function openIngredientForm(id){
+  const g=id?ing(id):{name:'',unit:'g',stock:'',minStock:'',price:'',expiry:'',notes:'',batch:''};
+  const nameVal = id?ingName(g):'';
+  sdsPendingRemove=false;
+  openModal(`
+    <div class="sheet-head"><h2>${id?t('edit_ingredient'):t('new_ingredient')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body">
+      <div class="field"><label>${t('f_name')}</label><input id="f_name" value="${esc(nameVal)}" placeholder="${t('ph_name')}"></div>
+      <div class="row2">
+        <div class="field"><label>${t('f_unit')}</label><select id="f_unit">${UNITS.map(u=>`<option value="${u}" ${u===g.unit?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}</select></div>
+        <div class="field"><label>${t('f_stock')}</label><input id="f_stock" inputmode="decimal" value="${esc(g.stock)}" placeholder="0"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>${t('f_min')}</label><input id="f_min" inputmode="decimal" value="${esc(g.minStock)}" placeholder="${t('optional')}"></div>
+        <div class="field"><label>${t('f_price',CUR[lang].sym)}</label><input id="f_price" inputmode="decimal" value="${esc(g.price)}" placeholder="${t('optional')}"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>${t('f_batch')}</label><input id="f_batch" value="${esc(g.batch||'')}" placeholder="${t('optional')}"></div>
+        <div class="field"><label>${t('f_expiry')}</label><input id="f_expiry" type="date" value="${esc(g.expiry)}"></div>
+      </div>
+      <div class="field"><label>${t('f_sds')}</label>
+        <div id="sdsCur">${(g.sdsPath)?sdsCurHTML(g):''}</div>
+        <input id="f_sds" type="file" accept="application/pdf,image/*">
+        <div class="hint">${t('sds_hint')}</div>
+      </div>
+      <div class="field"><label>${t('f_notes')}</label><textarea id="f_notes" placeholder="${t('optional')}">${esc(g.notes)}</textarea></div>
+    </div>
+    <div class="sheet-foot">
+      ${id?`<button class="btn btn-danger" onclick="confirmDeleteIngredient('${id}')">${I.trash}</button>`:''}
+      <button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-primary btn-block" id="ingSaveBtn" onclick="saveIngredient('${id||''}')">${I.check}${t('save')}</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('f_name').focus(),60);
+}
+function sdsCurHTML(g){
+  return `<div class="sds-cur"><span class="fn">${esc(g.sdsName||'SDS')}</span>
+    <span class="lnks"><a class="lnk" onclick="openSDS('${esc(g.sdsPath)}')">${t('sds_view')}</a>
+    <a class="lnk danger" onclick="markSdsRemove()">${t('sds_remove')}</a></span></div>`;
+}
+function markSdsRemove(){ sdsPendingRemove=true; const c=document.getElementById('sdsCur'); if(c) c.innerHTML=`<div class="hint">${t('sds_will_remove')}</div>`; }
+async function uploadSDS(file, ingId){
+  const safe=(file.name||'sds').replace(/[^a-zA-Z0-9._-]/g,'_').slice(-60);
+  const path=`${ingId}/${Date.now()}_${safe}`;
+  const { error } = await sb.storage.from('sds').upload(path, file, { upsert:true, contentType:file.type||'application/octet-stream' });
+  if(error) throw error;
+  return path;
+}
+async function openSDS(path){
+  try{
+    const { data, error } = await sb.storage.from('sds').createSignedUrl(path, 120);
+    if(error||!data) throw error||new Error('no url');
+    window.open(data.signedUrl, '_blank');
+  }catch(e){ toast(t('sds_open_failed')); }
+}
+async function saveIngredient(id){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){ toast(t('need_name')); return; }
+  const realId = id || uid();
+  const g = id?ing(id):null;
+  let sdsPath = g?(g.sdsPath||''):''; let sdsName = g?(g.sdsName||''):'';
+  const fileInput=document.getElementById('f_sds');
+  const file=fileInput && fileInput.files && fileInput.files[0];
+  if(sdsPendingRemove){
+    if(sdsPath){ try{ await sb.storage.from('sds').remove([sdsPath]); }catch(e){} }
+    sdsPath=''; sdsName='';
+  }
+  if(file){
+    const btn=document.getElementById('ingSaveBtn'); if(btn){ btn.disabled=true; btn.textContent=t('sds_uploading'); }
+    try{
+      if(sdsPath){ try{ await sb.storage.from('sds').remove([sdsPath]); }catch(e){} }
+      sdsPath = await uploadSDS(file, realId);
+      sdsName = file.name;
+    }catch(e){ toast(t('sds_upload_failed')); if(btn){ btn.disabled=false; btn.textContent=t('save'); } return; }
+  }
+  const data={ name, unit:document.getElementById('f_unit').value,
+    stock:num(document.getElementById('f_stock').value), minStock:num(document.getElementById('f_min').value),
+    price:num(document.getElementById('f_price').value), expiry:document.getElementById('f_expiry').value,
+    batch:document.getElementById('f_batch').value.trim(), sdsPath, sdsName,
+    notes:document.getElementById('f_notes').value.trim() };
+  if(id){ Object.assign(g,data); delete g.seedKey; }
+  else { state.ingredients.push({id:realId,...data}); }
+  sdsPendingRemove=false;
+  await saveState(); closeModal(); render(); toast(id?t('ingredient_updated'):t('ingredient_added'));
+}
+
+/* ============ ADJUST STOCK ============ */
+function openAdjust(id){
+  const g=ing(id); const ul=unitLabel(g.unit);
+  openModal(`
+    <div class="sheet-head"><h2>${t('adjust_title',esc(ingName(g)))}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body">
+      <p style="color:var(--ink-soft);margin-bottom:14px">${t('currently')} <b style="color:var(--green-d)">${fmtNum(g.stock)} ${esc(ul)}</b></p>
+      <div class="field"><label>${t('amount')} (${esc(ul)})</label><input id="adj_amt" inputmode="decimal" placeholder="250"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-danger" onclick="applyAdjust('${id}',-1)">${I.minus}${t('use_btn')}</button>
+      <button class="btn btn-green btn-block" onclick="applyAdjust('${id}',1)">${I.plus}${t('add_stock_btn')}</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('adj_amt').focus(),60);
+}
+async function applyAdjust(id,sign){
+  const a=num(document.getElementById('adj_amt').value);
+  if(a<=0){ toast(t('enter_amount')); return; }
+  const g=ing(id); g.stock=num(g.stock)+sign*a;
+  await saveState(); closeModal(); render(); toast(sign>0?t('stock_added'):t('stock_removed'));
+}
+
+/* ============ RECIPE FORM ============ */
+let formItems=[], formSteps=[];
+function openRecipeForm(id){
+  const r=id?state.recipes.find(x=>x.id===id):{name:'',yield:'',description:'',items:[],steps:[]};
+  formItems=r.items.map(x=>({...x})); if(formItems.length===0) formItems.push({ingredientId:'',amount:''});
+  formSteps=[...recSteps(r)]; if(formSteps.length===0) formSteps.push('');
+  const nameVal=id?recName(r):''; const descVal=id?recDesc(r):'';
+  openModal(`
+    <div class="sheet-head"><h2>${id?t('edit_recipe'):t('new_recipe')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body">
+      <div class="field"><label>${t('r_name')}</label><input id="r_name" value="${esc(nameVal)}" placeholder="${t('ph_recipe')}"></div>
+      <div class="field"><label>${t('r_yield')}</label><input id="r_yield" value="${esc(r.yield)}" placeholder="${t('ph_yield')}"></div>
+      <div class="field"><label>${t('r_desc')}</label><textarea id="r_desc" placeholder="${t('optional')}">${esc(descVal)}</textarea></div>
+      <div class="subhead"><span>${t('ingredients_section')}</span></div>
+      <div id="itemRows"></div>
+      <button class="miniadd" onclick="addItemRow()">${I.plus} ${t('add_ingredient_btn')}</button>
+      <div class="subhead" style="margin-top:24px"><span>${t('method_section')}</span></div>
+      <div id="stepRows"></div>
+      <button class="miniadd" onclick="addStepRow()">${I.plus} ${t('add_step_btn')}</button>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-primary btn-block" onclick="saveRecipe('${id||''}')">${I.check}${t('save')}</button>
+    </div>`);
+  drawItemRows(); drawStepRows();
+}
+function ingOptions(sel){
+  if(state.ingredients.length===0) return `<option value="">${t('add_ing_first')}</option>`;
+  return `<option value="">${t('choose')}</option>`+state.ingredients.map(g=>`<option value="${g.id}" ${g.id===sel?'selected':''}>${esc(ingName(g))} (${esc(unitLabel(g.unit))})</option>`).join('');
+}
+function drawItemRows(){
+  document.getElementById('itemRows').innerHTML=formItems.map((it,i)=>`
+    <div class="dynrow">
+      <select onchange="formItems[${i}].ingredientId=this.value">${ingOptions(it.ingredientId)}</select>
+      <input inputmode="decimal" placeholder="${t('ph_amount')}" value="${esc(it.amount)}" oninput="formItems[${i}].amount=this.value">
+      <button class="delrow" onclick="formItems.splice(${i},1);drawItemRows()">${I.trash}</button>
+    </div>`).join('');
+}
+function addItemRow(){ formItems.push({ingredientId:'',amount:''}); drawItemRows(); }
+function drawStepRows(){
+  document.getElementById('stepRows').innerHTML=formSteps.map((s,i)=>`
+    <div class="dynrow step">
+      <input value="${esc(s)}" placeholder="${t('ph_step',i+1)}" oninput="formSteps[${i}]=this.value">
+      <button class="delrow" onclick="formSteps.splice(${i},1);drawStepRows()">${I.trash}</button>
+    </div>`).join('');
+}
+function addStepRow(){ formSteps.push(''); drawStepRows(); }
+async function saveRecipe(id){
+  const name=document.getElementById('r_name').value.trim();
+  if(!name){ toast(t('need_recipe_name')); return; }
+  const items=formItems.filter(it=>it.ingredientId && num(it.amount)>0).map(it=>({ingredientId:it.ingredientId,amount:num(it.amount)}));
+  const steps=formSteps.map(s=>s.trim()).filter(Boolean);
+  const data={ name, yield:document.getElementById('r_yield').value.trim(), description:document.getElementById('r_desc').value.trim(), items, steps };
+  if(id){ const r=state.recipes.find(x=>x.id===id); Object.assign(r,data); delete r.seedKey; }
+  else { const nid=uid(); state.recipes.push({id:nid,...data}); detailId=nid; }
+  await saveState(); closeModal(); render(); toast(id?t('recipe_updated'):t('recipe_created'));
+}
+function confirmDeleteRecipe(id){
+  const r=state.recipes.find(x=>x.id===id);
+  openModal(`
+    <div class="sheet-head"><h2>${t('delete_recipe_title')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body"><p>${t('delete_recipe_confirm','<b>'+esc(recName(r))+'</b>')}</p></div>
+    <div class="sheet-foot"><button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-danger btn-block" onclick="doDeleteRecipe('${id}')">${I.trash}${t('del')}</button></div>`);
+}
+async function doDeleteRecipe(id){
+  state.recipes=state.recipes.filter(x=>x.id!==id); detailId=null;
+  await saveState(); closeModal(); setView('recipes'); toast(t('recipe_deleted'));
+}
+function ingredientUsage(id){ return state.recipes.filter(r=>(r.items||[]).some(it=>it.ingredientId===id)).length; }
+function confirmDeleteIngredient(id){
+  const g=ing(id); if(!g) return;
+  const uses=ingredientUsage(id);
+  openModal(`
+    <div class="sheet-head"><h2>${t('delete_ingredient_title')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body"><p>${t('delete_ingredient_confirm','<b>'+esc(ingName(g))+'</b>')}</p>
+      ${uses>0?`<p class="warn-note">${t('ingredient_in_use',uses)}</p>`:''}</div>
+    <div class="sheet-foot"><button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-danger btn-block" onclick="doDeleteIngredient('${id}')">${I.trash}${t('del')}</button></div>`);
+}
+async function doDeleteIngredient(id){
+  state.ingredients=state.ingredients.filter(x=>x.id!==id);
+  await saveState(); closeModal(); render(); toast(t('ingredient_deleted'));
+}
+
+/* ============ PRODUCE ============ */
+let produceChecked={}, produceValidIds=[];
+function openProduce(id){ const r=state.recipes.find(x=>x.id===id); produceChecked={}; renderProduce(r,1); }
+function renderProduce(r,mult){
+  mult=mult||1;
+  produceValidIds=r.items.filter(it=>ing(it.ingredientId)).map(it=>it.ingredientId);
+  const rows=r.items.map(it=>{
+    const g=ing(it.ingredientId); if(!g) return '';
+    const need=num(it.amount)*mult; const after=num(g.stock)-need; const short=after<0;
+    const done=!!produceChecked[it.ingredientId];
+    return `<div class="prow ${done?'done':''}" id="prow_${it.ingredientId}" onclick="toggleProduceCheck('${it.ingredientId}')">
+      <div class="pcheck" id="pchk_${it.ingredientId}">${done?I.check:''}</div>
+      <span class="pnm">${esc(ingName(g))}</span>
+      <span class="pamt">${fmtNum(need)} ${esc(unitLabel(g.unit))}${short?`<span class="pmiss">${t('short_by',fmtNum(-after))}</span>`:''}</span>
+    </div>`;
+  }).join('');
+  const checked=produceValidIds.filter(id=>produceChecked[id]).length;
+  const total=produceValidIds.length; const allDone=total>0&&checked===total;
+  const shortages=r.items.filter(it=>{const g=ing(it.ingredientId);return g && num(g.stock)<num(it.amount)*mult;});
+  const warn=shortages.length?`<div class="produce-warn"><b>${t('warn_label')}</b> ${t('warn_text',shortages.length)}</div>`:'';
+  openModal(`
+    <div class="sheet-head"><h2>${t('produce_title')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body">
+      <p style="margin-bottom:4px;font-weight:600;color:var(--green-d);font-family:Fraunces,serif;font-size:1.15rem">${esc(recName(r))}</p>
+      <div class="field" style="margin-top:14px"><label>${t('how_many')}</label>
+        <input id="prod_mult" inputmode="decimal" value="${mult}" oninput="updateProduce('${r.id}',this.value)"></div>
+      <div class="subhead"><span>${t('usage_tick')}</span>
+        <span class="prog ${allDone?'alldone':''}" id="prodProgress">${t('added_count',checked,total)}</span></div>
+      ${rows||`<p style="color:var(--ink-soft)">${t('no_ingredients_recipe')}</p>`}
+      ${warn}
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-green btn-block" onclick="doProduce('${r.id}')">${I.check}${t('produce_btn')}</button>
+    </div>`);
+}
+function toggleProduceCheck(id){
+  produceChecked[id]=!produceChecked[id];
+  const row=document.getElementById('prow_'+id); const box=document.getElementById('pchk_'+id);
+  if(row) row.classList.toggle('done',produceChecked[id]);
+  if(box) box.innerHTML=produceChecked[id]?I.check:'';
+  const checked=produceValidIds.filter(x=>produceChecked[x]).length; const total=produceValidIds.length;
+  const prog=document.getElementById('prodProgress');
+  if(prog){ prog.innerHTML=t('added_count',checked,total); prog.classList.toggle('alldone',total>0&&checked===total); }
+}
+function updateProduce(id,v){
+  const r=state.recipes.find(x=>x.id===id); const m=num(v)||0;
+  const input=document.getElementById('prod_mult'); const caret=input.selectionStart;
+  renderProduce(r,m);
+  const ni=document.getElementById('prod_mult'); ni.focus(); try{ni.setSelectionRange(caret,caret);}catch(e){}
+}
+async function doProduce(id){
+  const r=state.recipes.find(x=>x.id===id);
+  const mult=num(document.getElementById('prod_mult').value);
+  if(mult<=0){ toast(t('need_batches')); return; }
+  const lines=[];
+  r.items.forEach(it=>{ const g=ing(it.ingredientId); if(!g) return;
+    const used=num(it.amount)*mult; g.stock=num(g.stock)-used; lines.push({name:ingName(g),amount:used,unit:g.unit}); });
+  state.batches.push({ id:uid(), date:new Date().toISOString().slice(0,10), recipeId:r.id, recipeName:recName(r), multiplier:mult, lines });
+  await saveState(); closeModal();
+  toast(t('made', fmtNum(mult), batchWord(mult), recName(r))); setView('log');
+}
+async function deleteBatch(id){
+  state.batches=state.batches.filter(b=>b.id!==id);
+  await saveState(); render(); toast(t('entry_deleted'));
+}
+
+/* ============ seed + migrate ============ */
+function seed(){
+  const I0=[
+    ['shea','g',500,100,4],['jojoba','ml',250,50,6],['emulwax','g',200,50,5],
+    ['water','ml',1000,200,0.2],['vite','csepp',100,20,2],['lavender','csepp',80,20,8],
+  ];
+  state.ingredients=I0.map(a=>({id:uid(),seedKey:a[0],name:SEED_TEXT.hu.ing[a[0]],unit:a[1],stock:a[2],minStock:a[3],price:a[4],expiry:'',notes:''}));
+  const id=key=>state.ingredients.find(g=>g.seedKey===key).id;
+  state.recipes=[{ id:uid(), seedKey:'lavcream', name:SEED_TEXT.hu.rec.lavcream.name, yield:'100 ml',
+    description:SEED_TEXT.hu.rec.lavcream.desc, steps:[],
+    items:[
+      {ingredientId:id('water'),amount:60},{ingredientId:id('shea'),amount:15},
+      {ingredientId:id('jojoba'),amount:15},{ingredientId:id('emulwax'),amount:6},
+      {ingredientId:id('vite'),amount:4},{ingredientId:id('lavender'),amount:6},
+    ]}];
+  state.batches=[];
+}
+/* upgrade older stored example data so it becomes translatable */
+function migrate(){
+  const map={'Sheavaj':'shea','Jojoba olaj':'jojoba','Emulgeáló viasz':'emulwax','Desztillált víz':'water','E-vitamin':'vite','Levendula illóolaj':'lavender'};
+  let changed=false;
+  (state.ingredients||[]).forEach(g=>{ if(!g.seedKey && map[g.name]){ g.seedKey=map[g.name]; changed=true; } });
+  (state.recipes||[]).forEach(r=>{ if(!r.seedKey && r.name==='Hidratáló levendula arckrém'){ r.seedKey='lavcream'; r.steps=[]; changed=true; } });
+  return changed;
+}
+
+/* ============ boot ============ */
+(async function boot(){
+  if('serviceWorker' in navigator){ window.addEventListener('load', ()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+  cacheLoad(); lang = state.lang||'hu'; state.lang=lang;
+  applyAuthChrome();
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ authed=true; await startApp(); } else { showAuth(); }
+  }catch(e){ showAuth(); }
+  sb.auth.onAuthStateChange((_evt, sess)=>{
+    if(sess && !authed){ authed=true; startApp(); }
+    else if(!sess && authed){ authed=false; state.ingredients=[]; state.recipes=[]; state.batches=[]; showAuth(); }
+  });
+  window.addEventListener('online', ()=>{ setOffline(false); scheduleReconcile(); });
+  window.addEventListener('offline', ()=>setOffline(true));
+})();
+</script>
+</body>
+</html>
