@@ -87,3 +87,25 @@ create policy "sds read"   on storage.objects for select to authenticated using 
 create policy "sds insert" on storage.objects for insert to authenticated with check (bucket_id = 'sds');
 create policy "sds update" on storage.objects for update to authenticated using (bucket_id = 'sds');
 create policy "sds delete" on storage.objects for delete to authenticated using (bucket_id = 'sds');
+
+-- ============================================================
+--  UPDATE (2026-07): cleaning log (hygiene gate before batches)
+--  Run this once in the SQL Editor if you set the app up earlier.
+-- ============================================================
+
+create table if not exists public.cleanings (
+  id          text primary key,
+  user_id     uuid not null default auth.uid(),
+  ts          timestamptz not null default now(),
+  done_by     text default '',
+  steps       jsonb default '[]'::jsonb,
+  note        text default '',
+  created_at  timestamptz default now()
+);
+
+alter table public.cleanings enable row level security;
+drop policy if exists "own cleanings" on public.cleanings;
+create policy "own cleanings" on public.cleanings
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter publication supabase_realtime add table public.cleanings;

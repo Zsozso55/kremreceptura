@@ -243,6 +243,22 @@ input[type=file]{font-size:.9rem;width:100%}
 #signoutBtn{width:40px;height:40px;border-radius:10px;background:var(--paper-2);border:1px solid var(--line);color:var(--ink-soft);display:grid;place-items:center;margin-left:8px;flex:0 0 auto}
 #signoutBtn:hover{border-color:var(--clay);color:var(--clay)}
 #signoutBtn svg{width:18px;height:18px}
+
+/* cleaning / hygiene gate */
+.clean-status{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:14px;margin:4px 0 16px;border:1px solid var(--line)}
+.clean-status .ci{width:36px;height:36px;flex:0 0 36px;border-radius:50%;display:grid;place-items:center}
+.clean-status .ci svg{width:20px;height:20px}
+.clean-status .ct{font-weight:700;font-family:Fraunces,serif;font-size:1.06rem}
+.clean-status .cs{font-size:.85rem;color:var(--ink-soft);margin-top:2px}
+.clean-status.ok{background:rgba(45,90,61,.08);border-color:rgba(45,90,61,.30)}
+.clean-status.ok .ci{background:rgba(45,90,61,.16);color:#2d5a3d}
+.clean-status.bad{background:rgba(168,83,43,.09);border-color:rgba(168,83,43,.35)}
+.clean-status.bad .ci{background:rgba(168,83,43,.16);color:#a8532b}
+.clean-badge{display:inline-flex;gap:6px;align-items:center;font-size:.82rem;font-weight:600;padding:4px 11px;border-radius:999px;margin:2px 0 6px}
+.clean-badge svg{width:15px;height:15px}
+.clean-badge.ok{background:rgba(45,90,61,.12);color:#2d5a3d}
+.clean-badge.bad{background:rgba(168,83,43,.13);color:#a8532b}
+.btn[disabled]{opacity:.45;pointer-events:none}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -308,6 +324,10 @@ input[type=file]{font-size:.9rem;width:100%}
       <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/></svg>
       <span>Napló</span>
     </button>
+    <button id="tab-cleaning" onclick="setView('cleaning')">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 3l-5.5 5.5"/><path d="M13 8l3 3"/><path d="M10 11L3 18v3h3l7-7"/></svg>
+      <span>Tisztítás</span>
+    </button>
   </nav>
 
   <main id="view"></main>
@@ -324,7 +344,16 @@ input[type=file]{font-size:.9rem;width:100%}
 const T = {
   hu:{
     tagline:'Krémműhely',
-    nav_recipes:'Receptek', nav_ingredients:'Alapanyagok', nav_log:'Napló',
+    nav_recipes:'Receptek', nav_ingredients:'Alapanyagok', nav_log:'Napló', nav_cleaning:'Tisztítás',
+    clean_title:'Tisztítási procedúra', clean_checklist:'Ellenőrzőlista',
+    clean_intro:'Gyártás előtt kötelező. Pipálj ki minden pontot, majd naplózd a tisztítást.',
+    clean_log_btn:'Tisztítás elvégezve — naplózás', clean_saved:'Tisztítás naplózva',
+    clean_incomplete:'Előbb pipálj ki minden pontot', clean_history:'Tisztítási napló', clean_done_title:'Tisztítás elvégezve',
+    clean_status_ok:'Tiszta munkakörnyezet', clean_status_bad:'Tisztítás szükséges',
+    clean_last:'Utolsó: {0}', clean_never:'Még nincs naplózott tisztítás',
+    clean_until:'érvényes {0}-ig', clean_ok_until:'Tisztítva · érvényes {0}-ig', clean_needed:'Tisztítás szükséges',
+    clean_required_title:'Tisztítás szükséges', clean_required_text:'Nem indítható új gyártás, amíg a tisztítási procedúra nincs elvégezve és naplózva.',
+    clean_required_toast:'Előbb végezd el a tisztítást', clean_go:'Tisztítás elvégzése',
     stat_recipes:'recept', stat_ingredients:'alapanyag', stat_low:'alacsony készlet',
     search:'Keresés…', new_recipe:'Új recept', new_ingredient:'Új alapanyag',
     recipes_title:'Receptek', ingredients_title:'Alapanyagok', log_title:'Gyártási napló',
@@ -368,7 +397,16 @@ const T = {
   },
   en:{
     tagline:'Cream workshop',
-    nav_recipes:'Recipes', nav_ingredients:'Ingredients', nav_log:'Log',
+    nav_recipes:'Recipes', nav_ingredients:'Ingredients', nav_log:'Log', nav_cleaning:'Cleaning',
+    clean_title:'Cleaning procedure', clean_checklist:'Checklist',
+    clean_intro:'Required before making a batch. Tick every item, then log the cleaning.',
+    clean_log_btn:'Cleaning done — log it', clean_saved:'Cleaning logged',
+    clean_incomplete:'Tick every item first', clean_history:'Cleaning log', clean_done_title:'Cleaning completed',
+    clean_status_ok:'Clean workspace', clean_status_bad:'Cleaning required',
+    clean_last:'Last: {0}', clean_never:'No cleaning logged yet',
+    clean_until:'valid until {0}', clean_ok_until:'Cleaned · valid until {0}', clean_needed:'Cleaning required',
+    clean_required_title:'Cleaning required', clean_required_text:'You cannot start a new batch until the cleaning procedure is completed and logged.',
+    clean_required_toast:'Complete the cleaning first', clean_go:'Do the cleaning',
     stat_recipes:'recipes', stat_ingredients:'ingredients', stat_low:'low stock',
     search:'Search…', new_recipe:'New recipe', new_ingredient:'New ingredient',
     recipes_title:'Recipes', ingredients_title:'Ingredients', log_title:'Batch log',
@@ -459,6 +497,24 @@ function recDesc(r){ const s=seedRec(r); return s?s.desc:(r.description||''); }
 function recSteps(r){ const s=seedRec(r); return s?s.steps:(r.steps||[]); }
 
 /* ============ icons ============ */
+const CLEAN_STEPS = {
+  hu:[
+    'Munkafelület letakarítva és fertőtlenítve (70% alkohol)',
+    'Eszközök (keverők, spatulák, mérleg) elmosva, fertőtlenítve, szárítva',
+    'Edények és tégelyek sterilizálva / fertőtlenítve',
+    'Kézmosás és -fertőtlenítés, tiszta kesztyű',
+    'Haj összefogva, tiszta köpeny / kötény',
+    'Előző gyártás maradéka eltávolítva, felületek szárazak',
+  ],
+  en:[
+    'Work surface cleared and sanitised (70% alcohol)',
+    'Tools (mixers, spatulas, scale) washed, sanitised and dried',
+    'Vessels and jars sterilised / sanitised',
+    'Hands washed and sanitised, clean gloves on',
+    'Hair tied back, clean coat / apron',
+    'Previous batch residue removed, surfaces dry',
+  ],
+};
 const I = {
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
@@ -469,13 +525,18 @@ const I = {
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
   beaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3h15M6 3v7L3.8 18a2 2 0 0 0 1.9 2.6h12.6A2 2 0 0 0 20.2 18L18 10V3"/><path d="M6 13h12"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
   minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>',
   sprig:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c0-7 0-11 0-16M12 12c-4 0-7-2-7.6-6.2C8 6 11 8 12 12zM12 16c4 0 7-2 7.6-6.2C16 10 13 12 12 16z"/></svg>',
 };
 
 /* ============ state ============ */
 const UNITS = ['g','ml','db','csepp','%'];
-let state = { ingredients:[], recipes:[], batches:[], lang:'hu' };
+let state = { ingredients:[], recipes:[], batches:[], cleanings:[], lang:'hu' };
+let userEmail='';
+const CLEAN_WINDOW_MS = 12*60*60*1000;   /* a logged cleaning stays valid for 12 hours */
+let cleanChecked={};
+let pendingProduceId=null;
 let view = 'recipes';
 let detailId = null;
 let search = { recipes:'', ingredients:'' };
@@ -486,26 +547,28 @@ let search = { recipes:'', ingredients:'' };
    2) Run supabase-schema.sql in the project's SQL editor (see README).
    3) Project Settings -> API: paste the Project URL and the "anon public" key below. */
 const SUPABASE_URL = "https://bonhrjfulvadwhpvyrqy.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_kAYOEcSnjte_a1tB5iX-YA_v5vXvyYJ";   // sb_publishable_...
+const SUPABASE_ANON_KEY = "PASTE_YOUR_PUBLISHABLE_KEY";   // sb_publishable_...
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } });
 let authed=false, online=true, lastLocalWrite=0, reconcileTimer=null, pullTimer=null, authMode='signin';
 
 /* ---- local cache: instant load + offline ---- */
 const CACHE_KEY='receptura.cache.v2';
-function cacheSave(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ingredients:state.ingredients,recipes:state.recipes,batches:state.batches,lang:lang})); }catch(e){} }
-function cacheLoad(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw){ const d=JSON.parse(raw); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[]; state.batches=d.batches||[]; if(d.lang) state.lang=d.lang; return true; } }catch(e){} return false; }
+function cacheSave(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ingredients:state.ingredients,recipes:state.recipes,batches:state.batches,cleanings:state.cleanings,lang:lang})); }catch(e){} }
+function cacheLoad(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw){ const d=JSON.parse(raw); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[]; state.batches=d.batches||[]; state.cleanings=d.cleanings||[]; if(d.lang) state.lang=d.lang; return true; } }catch(e){} return false; }
 
 /* ---- map app objects <-> database columns ---- */
 const toRow = {
   ingredient: g => ({ id:g.id, name:g.name, unit:g.unit, stock:num(g.stock), min_stock:num(g.minStock), price:num(g.price), expiry:g.expiry||null, notes:g.notes||'', batch:g.batch||null, sds_path:g.sdsPath||null, sds_name:g.sdsName||null, seed_key:g.seedKey||null }),
   recipe: r => ({ id:r.id, name:r.name, yield_text:r.yield||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seed_key:r.seedKey||null }),
   batch: b => ({ id:b.id, date:b.date, recipe_id:b.recipeId, recipe_name:b.recipeName, multiplier:num(b.multiplier), lines:b.lines||[] }),
+  cleaning: c => ({ id:c.id, ts:c.ts, done_by:c.by||'', steps:c.steps||[], note:c.note||'' }),
 };
 const fromRow = {
   ingredient: r => ({ id:r.id, name:r.name, unit:r.unit, stock:Number(r.stock)||0, minStock:Number(r.min_stock)||0, price:Number(r.price)||0, expiry:r.expiry||'', notes:r.notes||'', batch:r.batch||'', sdsPath:r.sds_path||'', sdsName:r.sds_name||'', seedKey:r.seed_key||undefined }),
   recipe: r => ({ id:r.id, name:r.name, yield:r.yield_text||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seedKey:r.seed_key||undefined }),
   batch: r => ({ id:r.id, date:r.date, recipeId:r.recipe_id, recipeName:r.recipe_name, multiplier:Number(r.multiplier)||0, lines:r.lines||[] }),
+  cleaning: r => ({ id:r.id, ts:r.ts, by:r.done_by||'', steps:r.steps||[], note:r.note||'' }),
 };
 
 /* ---- pull everything from Supabase ---- */
@@ -515,6 +578,7 @@ async function pull(){
   state.ingredients = i.data.map(fromRow.ingredient);
   state.recipes = r.data.map(fromRow.recipe);
   state.batches = b.data.map(fromRow.batch);
+  try{ const cl=await sb.from('cleanings').select('*'); if(!cl.error && cl.data) state.cleanings = cl.data.map(fromRow.cleaning); }catch(e){}
   cacheSave();
 }
 
@@ -528,6 +592,7 @@ async function reconcile(){
     if(state.ingredients.length){ const {error}=await sb.from('ingredients').upsert(state.ingredients.map(toRow.ingredient)); if(error) throw error; }
     if(state.recipes.length){ const {error}=await sb.from('recipes').upsert(state.recipes.map(toRow.recipe)); if(error) throw error; }
     if(state.batches.length){ const {error}=await sb.from('batches').upsert(state.batches.map(toRow.batch)); if(error) throw error; }
+    try{ if(state.cleanings.length){ const {error}=await sb.from('cleanings').upsert(state.cleanings.map(toRow.cleaning)); if(error) throw error; } await reconcileDeletes('cleanings', state.cleanings); }catch(e){ /* cleanings table may not exist yet */ }
     await reconcileDeletes('ingredients', state.ingredients);
     await reconcileDeletes('recipes', state.recipes);
     await reconcileDeletes('batches', state.batches);
@@ -622,6 +687,7 @@ function applyChrome(){
   document.querySelector('#tab-recipes span').textContent=t('nav_recipes');
   document.querySelector('#tab-ingredients span').textContent=t('nav_ingredients');
   document.querySelector('#tab-log span').textContent=t('nav_log');
+  document.querySelector('#tab-cleaning span').textContent=t('nav_cleaning');
   document.getElementById('lang-hu').classList.toggle('active',lang==='hu');
   document.getElementById('lang-en').classList.toggle('active',lang==='en');
   const so=document.getElementById('signoutBtn'); if(so) so.title=t('auth_signout');
@@ -638,7 +704,7 @@ async function setLang(l){
 /* ============ view switch ============ */
 function setView(v){
   view=v; detailId=null;
-  ['recipes','ingredients','log'].forEach(k=>document.getElementById('tab-'+k).classList.toggle('active',k===v));
+  ['recipes','ingredients','log','cleaning'].forEach(k=>document.getElementById('tab-'+k).classList.toggle('active',k===v));
   render();
 }
 function render(){
@@ -646,6 +712,7 @@ function render(){
   if(detailId){ el.innerHTML=renderDetail(detailId); return; }
   if(view==='recipes') el.innerHTML=renderRecipes();
   else if(view==='ingredients') el.innerHTML=renderIngredients();
+  else if(view==='cleaning') el.innerHTML=renderCleaning();
   else el.innerHTML=renderLog();
 }
 
@@ -984,7 +1051,10 @@ async function doDeleteIngredient(id){
 
 /* ============ PRODUCE ============ */
 let produceChecked={}, produceValidIds=[];
-function openProduce(id){ const r=state.recipes.find(x=>x.id===id); produceChecked={}; renderProduce(r,1); }
+function openProduce(id){
+  if(!cleaningValid()){ pendingProduceId=id; openCleaningRequired(); return; }
+  const r=state.recipes.find(x=>x.id===id); produceChecked={}; renderProduce(r,1);
+}
 function renderProduce(r,mult){
   mult=mult||1;
   produceValidIds=r.items.filter(it=>ing(it.ingredientId)).map(it=>it.ingredientId);
@@ -1006,6 +1076,7 @@ function renderProduce(r,mult){
     <div class="sheet-head"><h2>${t('produce_title')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
     <div class="sheet-body">
       <p style="margin-bottom:4px;font-weight:600;color:var(--green-d);font-family:Fraunces,serif;font-size:1.15rem">${esc(recName(r))}</p>
+      ${cleanBadgeHTML()}
       <div class="field" style="margin-top:14px"><label>${t('how_many')}</label>
         <input id="prod_mult" inputmode="decimal" value="${mult}" oninput="updateProduce('${r.id}',this.value)"></div>
       <div class="subhead"><span>${t('usage_tick')}</span>
@@ -1034,6 +1105,7 @@ function updateProduce(id,v){
   const ni=document.getElementById('prod_mult'); ni.focus(); try{ni.setSelectionRange(caret,caret);}catch(e){}
 }
 async function doProduce(id){
+  if(!cleaningValid()){ closeModal(); toast(t('clean_required_toast')); setView('cleaning'); return; }
   const r=state.recipes.find(x=>x.id===id);
   const mult=num(document.getElementById('prod_mult').value);
   if(mult<=0){ toast(t('need_batches')); return; }
@@ -1047,6 +1119,62 @@ async function doProduce(id){
 async function deleteBatch(id){
   state.batches=state.batches.filter(b=>b.id!==id);
   await saveState(); render(); toast(t('entry_deleted'));
+}
+
+/* ============ CLEANING — hygiene gate ============ */
+function cleanSteps(){ return CLEAN_STEPS[lang]||CLEAN_STEPS.hu; }
+function lastCleaning(){ if(!state.cleanings||!state.cleanings.length) return null;
+  return [...state.cleanings].sort((a,b)=>String(b.ts).localeCompare(String(a.ts)))[0]; }
+function cleaningValid(){ const c=lastCleaning(); if(!c) return false;
+  return (Date.now()-new Date(c.ts).getTime()) < CLEAN_WINDOW_MS; }
+function cleanValidUntil(){ const c=lastCleaning(); if(!c) return null; return new Date(new Date(c.ts).getTime()+CLEAN_WINDOW_MS); }
+function fmtWhen(d){ d=new Date(d); return d.toLocaleString(CUR[lang].locale,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fmtTime(d){ d=new Date(d); return d.toLocaleTimeString(CUR[lang].locale,{hour:'2-digit',minute:'2-digit'}); }
+function cleanBadgeHTML(){
+  if(cleaningValid()) return `<div class="clean-badge ok">${I.check}<span>${t('clean_ok_until',fmtTime(cleanValidUntil()))}</span></div>`;
+  return `<div class="clean-badge bad">${I.warn}<span>${t('clean_needed')}</span></div>`;
+}
+function renderCleaning(){
+  const steps=cleanSteps(); const valid=cleaningValid(); const last=lastCleaning();
+  const statusCard=`<div class="clean-status ${valid?'ok':'bad'}">
+      <div class="ci">${valid?I.check:I.warn}</div>
+      <div><div class="ct">${valid?t('clean_status_ok'):t('clean_status_bad')}</div>
+      <div class="cs">${last? t('clean_last',fmtWhen(last.ts))+(last.by?` \u00b7 ${esc(last.by)}`:'') : t('clean_never')}${valid?` \u00b7 ${t('clean_until',fmtTime(cleanValidUntil()))}`:''}</div></div>
+    </div>`;
+  const rows=steps.map((sx,idx)=>{ const done=!!cleanChecked[idx];
+    return `<div class="prow ${done?'done':''}" onclick="toggleCleanCheck(${idx})"><div class="pcheck">${done?I.check:''}</div><span class="pnm">${esc(sx)}</span></div>`; }).join('');
+  const doneCount=steps.filter((sx,idx)=>cleanChecked[idx]).length;
+  const allDone=steps.length>0 && doneCount===steps.length;
+  const hist=(state.cleanings&&state.cleanings.length)?[...state.cleanings].sort((a,b)=>String(b.ts).localeCompare(String(a.ts))).slice(0,12).map(c=>`
+      <div class="logrow"><div class="date"><div class="d">${new Date(c.ts).getDate()}</div><div class="m">${MONTHS[lang][new Date(c.ts).getMonth()]}</div></div>
+        <div class="body"><div class="t">${t('clean_done_title')} \u2014 ${fmtTime(c.ts)}</div><div class="s">${c.by?esc(c.by):'\u2014'}${c.note?` \u00b7 ${esc(c.note)}`:''}</div></div>
+        <button class="iconbtn" title="${t('del')}" onclick="deleteCleaning('${c.id}')">${I.trash}</button></div>`).join(''):'';
+  return `<div class="shead"><h2>${t('clean_title')}</h2></div>
+    ${statusCard}
+    <div class="panel"><h3>${I.check} ${t('clean_checklist')}</h3>
+      <p style="color:var(--ink-soft);margin:-2px 0 12px;font-size:.92rem">${t('clean_intro')}</p>
+      ${rows}
+      <div class="subhead" style="margin-top:12px"><span>${t('added_count',doneCount,steps.length)}</span></div>
+      <button class="btn btn-green btn-block" style="margin-top:12px" ${allDone?'':'disabled'} onclick="logCleaning()">${I.check}${t('clean_log_btn')}</button>
+    </div>
+    ${hist?`<div class="panel"><h3>${I.list} ${t('clean_history')}</h3><div class="log">${hist}</div></div>`:''}`;
+}
+function toggleCleanCheck(idx){ cleanChecked[idx]=!cleanChecked[idx]; render(); }
+async function logCleaning(){
+  const steps=cleanSteps(); if(!steps.every((sx,idx)=>cleanChecked[idx])){ toast(t('clean_incomplete')); return; }
+  state.cleanings.push({ id:uid(), ts:new Date().toISOString(), by:userEmail||'', steps:steps.slice(), note:'' });
+  cleanChecked={};
+  await saveState(); toast(t('clean_saved'));
+  if(pendingProduceId){ const pid=pendingProduceId; pendingProduceId=null; view='recipes'; openProduce(pid); }
+  else render();
+}
+async function deleteCleaning(id){ state.cleanings=state.cleanings.filter(c=>c.id!==id); await saveState(); render(); toast(t('entry_deleted')); }
+function openCleaningRequired(){
+  openModal(`<div class="sheet-head"><h2>${t('clean_required_title')}</h2><button class="closeX" onclick="closeModal()">\u2715</button></div>
+    <div class="sheet-body"><div class="clean-status bad"><div class="ci">${I.warn}</div>
+      <div><div class="ct">${t('clean_status_bad')}</div><div class="cs">${t('clean_required_text')}</div></div></div></div>
+    <div class="sheet-foot"><button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-green btn-block" onclick="closeModal();setView('cleaning')">${I.check}${t('clean_go')}</button></div>`);
 }
 
 /* ============ seed + migrate ============ */
@@ -1082,10 +1210,10 @@ function migrate(){
   applyAuthChrome();
   try{
     const { data:{ session } } = await sb.auth.getSession();
-    if(session){ authed=true; await startApp(); } else { showAuth(); }
+    if(session){ authed=true; userEmail=(session.user&&session.user.email)||''; await startApp(); } else { showAuth(); }
   }catch(e){ showAuth(); }
   sb.auth.onAuthStateChange((_evt, sess)=>{
-    if(sess && !authed){ authed=true; startApp(); }
+    if(sess && !authed){ authed=true; userEmail=(sess.user&&sess.user.email)||''; startApp(); }
     else if(!sess && authed){ authed=false; state.ingredients=[]; state.recipes=[]; state.batches=[]; showAuth(); }
   });
   window.addEventListener('online', ()=>{ setOffline(false); scheduleReconcile(); });
