@@ -504,7 +504,7 @@ const CLEAN_STEPS = {
     'Edények és tégelyek sterilizálva / fertőtlenítve',
     'Kézmosás és -fertőtlenítés, tiszta kesztyű',
     'Haj összefogva, tiszta köpeny / kötény',
-    'Előző gyártás maradéka eltávolítva, felületek szárazak',
+    'Ellenőrizve: nincs maradék az előző gyártásból, minden felület és eszköz tiszta és száraz',
   ],
   en:[
     'Work surface cleared and sanitised (70% alcohol)',
@@ -512,7 +512,7 @@ const CLEAN_STEPS = {
     'Vessels and jars sterilised / sanitised',
     'Hands washed and sanitised, clean gloves on',
     'Hair tied back, clean coat / apron',
-    'Previous batch residue removed, surfaces dry',
+    'Verified: no residue from the previous batch, all surfaces and tools clean and dry',
   ],
 };
 const I = {
@@ -547,7 +547,7 @@ let search = { recipes:'', ingredients:'' };
    2) Run supabase-schema.sql in the project's SQL editor (see README).
    3) Project Settings -> API: paste the Project URL and the "anon public" key below. */
 const SUPABASE_URL = "https://bonhrjfulvadwhpvyrqy.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_kAYOEcSnjte_a1tB5iX-YA_v5vXvyYJ";   // sb_publishable_...
+const SUPABASE_ANON_KEY = "PASTE_YOUR_PUBLISHABLE_KEY";   // sb_publishable_...
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } });
 let authed=false, online=true, lastLocalWrite=0, reconcileTimer=null, pullTimer=null, authMode='signin';
