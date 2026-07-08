@@ -547,7 +547,7 @@ let search = { recipes:'', ingredients:'' };
    2) Run supabase-schema.sql in the project's SQL editor (see README).
    3) Project Settings -> API: paste the Project URL and the "anon public" key below. */
 const SUPABASE_URL = "https://bonhrjfulvadwhpvyrqy.supabase.co";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_PUBLISHABLE_KEY";   // sb_publishable_...
+const SUPABASE_ANON_KEY = "sb_publishable_kAYOEcSnjte_a1tB5iX-YA_v5vXvyYJ";   // sb_publishable_...
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } });
 let authed=false, online=true, lastLocalWrite=0, reconcileTimer=null, pullTimer=null, authMode='signin';
