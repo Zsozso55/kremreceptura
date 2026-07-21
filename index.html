@@ -220,6 +220,7 @@ input[type=file]{font-size:.9rem;width:100%}
   .nav button{padding:12px 4px}
   .dynrow{grid-template-columns:1fr 72px 36px}
   .stat .n{font-size:1.45rem}
+  .shead .search{flex-basis:100%;max-width:none;margin-left:0;order:3}
 }
 @media(min-width:600px){
   .modal-root{align-items:center}
@@ -282,6 +283,8 @@ input[type=file]{font-size:.9rem;width:100%}
 .rep-table tbody tr:last-child td{border-bottom:none}
 .rep-table tr.total td{font-weight:700;color:var(--green-d);border-top:2px solid var(--line);background:var(--paper-2)}
 .rep-empty{color:var(--ink-soft);padding:14px;background:var(--paper-2);border:1px dashed var(--line);border-radius:10px}
+.rep-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+.rep-scroll .rep-table{min-width:480px}
 @media print{
   .topbar,.nav,.langtog,#signoutBtn,.offlinepill,.no-print{display:none !important}
   .shead .search,.shead .ingsort,.detail-actions,.detail .back,.irow .acts{display:none !important}
@@ -966,28 +969,28 @@ function renderReport(){
   const prodRows=bs.map(b=>{ const c=batchCost(b); prodTot+=c;
     return `<tr><td>${esc(b.date)}</td><td>${esc(b.recipeName)}</td><td class="num">${fmtNum(b.multiplier)}</td><td class="num">${money(c)}</td></tr>`; }).join('');
   const prod=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_production')}</h3>${xlsxBtn('exportProdXLSX()')}</div>
-    ${bs.length?`<table class="rep-table"><thead><tr><th>${t('col_date')}</th><th>${t('col_recipe')}</th><th class="num">${t('col_batches')}</th><th class="num">${t('col_cost')}</th></tr></thead>
-      <tbody>${prodRows}<tr class="total"><td colspan="3">${t('col_total')}</td><td class="num">${money(prodTot)}</td></tr></tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
+    ${bs.length?`<div class="rep-scroll"><table class="rep-table"><thead><tr><th>${t('col_date')}</th><th>${t('col_recipe')}</th><th class="num">${t('col_batches')}</th><th class="num">${t('col_cost')}</th></tr></thead>
+      <tbody>${prodRows}<tr class="total"><td colspan="3">${t('col_total')}</td><td class="num">${money(prodTot)}</td></tr></tbody></table></div>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   /* 2. inventory value (as of today) */
   const inv=[...state.ingredients].sort((a,b)=>ingName(a).localeCompare(ingName(b),lang)); let invTot=0;
   const invRows=inv.map(g=>{ const up=unitPrice(g), val=up*num(g.stock); invTot+=val;
     return `<tr><td>${esc(ingName(g))}</td><td>${g.supplier?esc(g.supplier):'—'}</td><td class="num">${fmtNum(g.stock)} ${esc(unitLabel(g.unit))}</td><td class="num">${up>0?priceUnit(up,g.unit):'—'}</td><td class="num">${money(val)}</td></tr>`; }).join('');
   const invSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_inventory')} <span class="rep-asof">(${t('rep_asof')})</span></h3>${xlsxBtn('exportInvXLSX()')}</div>
-    ${inv.length?`<table class="rep-table"><thead><tr><th>${t('col_ingredient')}</th><th>${t('f_supplier')}</th><th class="num">${t('col_stock')}</th><th class="num">${t('col_unitprice')}</th><th class="num">${t('col_value')}</th></tr></thead>
-      <tbody>${invRows}<tr class="total"><td colspan="4">${t('col_total')}</td><td class="num">${money(invTot)}</td></tr></tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
+    ${inv.length?`<div class="rep-scroll"><table class="rep-table"><thead><tr><th>${t('col_ingredient')}</th><th>${t('f_supplier')}</th><th class="num">${t('col_stock')}</th><th class="num">${t('col_unitprice')}</th><th class="num">${t('col_value')}</th></tr></thead>
+      <tbody>${invRows}<tr class="total"><td colspan="4">${t('col_total')}</td><td class="num">${money(invTot)}</td></tr></tbody></table></div>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   /* 3. recipe cost (as of today) */
   const recs=[...state.recipes].sort((a,b)=>recName(a).localeCompare(recName(b),lang));
   const recRows=recs.map(r=>`<tr><td>${esc(recName(r))}</td><td>${esc(r.yield||'—')}</td><td class="num">${money(recipeCost(r))}</td></tr>`).join('');
   const recSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_recipes')} <span class="rep-asof">(${t('rep_asof')})</span></h3>${xlsxBtn('exportRecXLSX()')}</div>
-    ${recs.length?`<table class="rep-table"><thead><tr><th>${t('col_recipe')}</th><th>${t('col_yield')}</th><th class="num">${t('col_costper')}</th></tr></thead><tbody>${recRows}</tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
+    ${recs.length?`<div class="rep-scroll"><table class="rep-table"><thead><tr><th>${t('col_recipe')}</th><th>${t('col_yield')}</th><th class="num">${t('col_costper')}</th></tr></thead><tbody>${recRows}</tbody></table></div>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   /* 4. cleaning log */
   const cs=repCleanings();
   const clRows=cs.map(c=>`<tr><td>${esc(fmtWhen(c.ts))}</td><td>${c.by?esc(c.by):'—'}</td></tr>`).join('');
   const clSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_cleaning')}</h3>${xlsxBtn('exportCleanXLSX()')}</div>
-    ${cs.length?`<table class="rep-table"><thead><tr><th>${t('col_time')}</th><th>${t('col_by')}</th></tr></thead><tbody>${clRows}</tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
+    ${cs.length?`<div class="rep-scroll"><table class="rep-table"><thead><tr><th>${t('col_time')}</th><th>${t('col_by')}</th></tr></thead><tbody>${clRows}</tbody></table></div>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   return toolbar+header+prod+invSec+recSec+clSec;
 }
