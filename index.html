@@ -284,10 +284,12 @@ input[type=file]{font-size:.9rem;width:100%}
 .rep-empty{color:var(--ink-soft);padding:14px;background:var(--paper-2);border:1px dashed var(--line);border-radius:10px}
 @media print{
   .topbar,.nav,.langtog,#signoutBtn,.offlinepill,.no-print{display:none !important}
+  .shead .search,.shead .ingsort,.detail-actions,.detail .back,.irow .acts{display:none !important}
   body::before{display:none}
   .app{max-width:none;padding:0}
   .rep-table{font-size:.78rem;border-color:#bbb}
-  .rep-sec{break-inside:avoid;page-break-inside:avoid}
+  .rep-sec,.rcard,.irow,.panel,.detail-head,.logrow{break-inside:avoid;page-break-inside:avoid}
+  .rcard:hover{transform:none}
 }
 </style>
 <link rel="manifest" href="manifest.webmanifest">
@@ -373,6 +375,7 @@ input[type=file]{font-size:.9rem;width:100%}
 <div class="offlinepill" id="offlinePill"><span class="dot"></span><span></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* ============ i18n ============ */
 const T = {
@@ -388,8 +391,9 @@ const T = {
     clean_until:'érvényes {0}-ig', clean_ok_until:'Tisztítva · érvényes {0}-ig', clean_needed:'Tisztítás szükséges',
     clean_required_title:'Tisztítás szükséges', clean_required_text:'Nem indítható új gyártás, amíg a tisztítási procedúra nincs elvégezve és naplózva.',
     clean_required_toast:'Előbb végezd el a tisztítást', clean_go:'Tisztítás elvégzése',
-    report_title:'Riport a könyvelőnek', rep_from:'Kezdő dátum', rep_to:'Záró dátum', rep_print:'Nyomtatás / PDF', rep_csv:'CSV', rep_all:'teljes',
-    rep_generated:'Készült: {0}', rep_period:'Időszak: {0} – {1}', rep_asof:'mai állapot szerint', rep_empty:'Nincs adat ebben az időszakban', rep_csv_done:'CSV letöltve',
+    report_title:'Riport a könyvelőnek', rep_from:'Kezdő dátum', rep_to:'Záró dátum', rep_print:'Nyomtatás / PDF', rep_xlsx:'Excel', rep_xlsx_all:'Teljes Excel', rep_all:'teljes',
+    rep_generated:'Készült: {0}', rep_period:'Időszak: {0} – {1}', rep_asof:'mai állapot szerint', rep_empty:'Nincs adat ebben az időszakban', xlsx_done:'Excel letöltve',
+    file_production:'gyartasi-naplo', file_inventory:'keszletertek', file_recipes:'receptonkoltseg', file_cleaning:'tisztitasi-naplo', file_report:'riport',
     sec_production:'Gyártási napló', sec_inventory:'Készletérték (leltár)', sec_recipes:'Receptönköltség', sec_cleaning:'Tisztítási napló',
     col_date:'Dátum', col_recipe:'Recept', col_batches:'Adag', col_cost:'Anyagköltség', col_ingredient:'Alapanyag',
     col_stock:'Készlet', col_unitprice:'Egységár', col_value:'Érték', col_total:'Összesen', col_yield:'Hozam', col_costper:'Anyagköltség / adag', col_by:'Végezte', col_time:'Időpont',
@@ -412,7 +416,7 @@ const T = {
     edit_ingredient:'Alapanyag szerkesztése', f_name:'Megnevezés', f_unit:'Egység', f_stock:'Jelenlegi készlet',
     f_min:'Min. készlet (figyelmeztetés)', f_price:'Ár ({0} / egység)', f_expiry:'Lejárat', f_notes:'Megjegyzés',
     f_batch:'Batch szám / Lot', f_sds:'Biztonsági adatlap (SDS)', sds_hint:'PDF vagy kép feltöltése (a szállító SDS-e).', sds_view:'Megnézés', sds_remove:'Eltávolítás', sds_will_remove:'Mentéskor eltávolítva.', sds_uploading:'Feltöltés…', sds_upload_failed:'A feltöltés nem sikerült', sds_open_failed:'Az adatlap nem nyitható meg', sds_chip:'SDS', batch_abbr:'Lot',
-    f_pack_amount:'Kiszerelés mérete', f_pack_price:'Kiszerelés ára ({0})', f_pack_unit:'Kiszerelés egysége', f_unit_price:'Egységár',
+    f_pack_amount:'Kiszerelés mérete', f_pack_price:'Kiszerelés ára ({0})', f_pack_unit:'Kiszerelés egysége', f_unit_price:'Egységár', f_supplier:'Beszállító',
     f_docs:'Dokumentumok (SDS, CoA, spec.)', docs_hint:'Több PDF vagy kép is feltölthető — az új hozzáadódik a meglévőkhöz.', docs_title:'Dokumentumok', doc_none:'Nincs feltöltött dokumentum.',
     sort_label:'Rendezés', sort_name_az:'Név A→Z', sort_name_za:'Név Z→A', sort_low:'Alacsony készlet elöl', sort_price:'Ár szerint', sort_expiry:'Lejárat szerint',
     optional:'opcionális', ph_name:'pl. Sheavaj', cancel:'Mégse', save:'Mentés',
@@ -449,8 +453,9 @@ const T = {
     clean_until:'valid until {0}', clean_ok_until:'Cleaned · valid until {0}', clean_needed:'Cleaning required',
     clean_required_title:'Cleaning required', clean_required_text:'You cannot start a new batch until the cleaning procedure is completed and logged.',
     clean_required_toast:'Complete the cleaning first', clean_go:'Do the cleaning',
-    report_title:'Report for the accountant', rep_from:'From date', rep_to:'To date', rep_print:'Print / PDF', rep_csv:'CSV', rep_all:'all',
-    rep_generated:'Generated: {0}', rep_period:'Period: {0} – {1}', rep_asof:'as of today', rep_empty:'No data in this period', rep_csv_done:'CSV downloaded',
+    report_title:'Report for the accountant', rep_from:'From date', rep_to:'To date', rep_print:'Print / PDF', rep_xlsx:'Excel', rep_xlsx_all:'Full Excel', rep_all:'all',
+    rep_generated:'Generated: {0}', rep_period:'Period: {0} – {1}', rep_asof:'as of today', rep_empty:'No data in this period', xlsx_done:'Excel downloaded',
+    file_production:'batch-log', file_inventory:'inventory-value', file_recipes:'recipe-cost', file_cleaning:'cleaning-log', file_report:'report',
     sec_production:'Batch log', sec_inventory:'Inventory value', sec_recipes:'Recipe cost', sec_cleaning:'Cleaning log',
     col_date:'Date', col_recipe:'Recipe', col_batches:'Batches', col_cost:'Material cost', col_ingredient:'Ingredient',
     col_stock:'Stock', col_unitprice:'Unit price', col_value:'Value', col_total:'Total', col_yield:'Yield', col_costper:'Material cost / batch', col_by:'By', col_time:'Time',
@@ -473,7 +478,7 @@ const T = {
     edit_ingredient:'Edit ingredient', f_name:'Name', f_unit:'Unit', f_stock:'Current stock',
     f_min:'Min. stock (alert)', f_price:'Price ({0} / unit)', f_expiry:'Expiry', f_notes:'Notes',
     f_batch:'Batch / Lot no.', f_sds:'Safety data sheet (SDS)', sds_hint:'Upload a PDF or image (the supplier’s SDS).', sds_view:'View', sds_remove:'Remove', sds_will_remove:'Will be removed on save.', sds_uploading:'Uploading…', sds_upload_failed:'Upload failed', sds_open_failed:'Couldn’t open the sheet', sds_chip:'SDS', batch_abbr:'Lot',
-    f_pack_amount:'Pack size', f_pack_price:'Pack price ({0})', f_pack_unit:'Pack unit', f_unit_price:'Unit price',
+    f_pack_amount:'Pack size', f_pack_price:'Pack price ({0})', f_pack_unit:'Pack unit', f_unit_price:'Unit price', f_supplier:'Supplier',
     f_docs:'Documents (SDS, CoA, spec.)', docs_hint:'You can upload several PDFs or images — new ones are added to the existing list.', docs_title:'Documents', doc_none:'No documents uploaded.',
     sort_label:'Sort', sort_name_az:'Name A→Z', sort_name_za:'Name Z→A', sort_low:'Low stock first', sort_price:'By price', sort_expiry:'By expiry',
     optional:'optional', ph_name:'e.g. Shea butter', cancel:'Cancel', save:'Save',
@@ -636,13 +641,13 @@ function cacheLoad(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw){ c
 
 /* ---- map app objects <-> database columns ---- */
 const toRow = {
-  ingredient: g => ({ id:g.id, name:g.name, unit:g.unit, stock:num(g.stock), min_stock:num(g.minStock), price:num(g.price), pack_amount:num(g.packAmount), pack_price:num(g.packPrice), pack_unit:g.packUnit||null, docs:g.docs||[], expiry:g.expiry||null, notes:g.notes||'', batch:g.batch||null, sds_path:g.sdsPath||null, sds_name:g.sdsName||null, seed_key:g.seedKey||null }),
+  ingredient: g => ({ id:g.id, name:g.name, unit:g.unit, stock:num(g.stock), min_stock:num(g.minStock), price:num(g.price), pack_amount:num(g.packAmount), pack_price:num(g.packPrice), pack_unit:g.packUnit||null, docs:g.docs||[], supplier:g.supplier||null, expiry:g.expiry||null, notes:g.notes||'', batch:g.batch||null, sds_path:g.sdsPath||null, sds_name:g.sdsName||null, seed_key:g.seedKey||null }),
   recipe: r => ({ id:r.id, name:r.name, yield_text:r.yield||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seed_key:r.seedKey||null }),
   batch: b => ({ id:b.id, date:b.date, recipe_id:b.recipeId, recipe_name:b.recipeName, multiplier:num(b.multiplier), lines:b.lines||[] }),
   cleaning: c => ({ id:c.id, ts:c.ts, done_by:c.by||'', steps:c.steps||[], note:c.note||'' }),
 };
 const fromRow = {
-  ingredient: r => ({ id:r.id, name:r.name, unit:r.unit, stock:Number(r.stock)||0, minStock:Number(r.min_stock)||0, price:Number(r.price)||0, packAmount:Number(r.pack_amount)||0, packPrice:Number(r.pack_price)||0, packUnit:r.pack_unit||'', docs:Array.isArray(r.docs)?r.docs:(r.sds_path?[{path:r.sds_path,name:r.sds_name||'SDS'}]:[]), expiry:r.expiry||'', notes:r.notes||'', batch:r.batch||'', sdsPath:r.sds_path||'', sdsName:r.sds_name||'', seedKey:r.seed_key||undefined }),
+  ingredient: r => ({ id:r.id, name:r.name, unit:r.unit, stock:Number(r.stock)||0, minStock:Number(r.min_stock)||0, price:Number(r.price)||0, packAmount:Number(r.pack_amount)||0, packPrice:Number(r.pack_price)||0, packUnit:r.pack_unit||'', docs:Array.isArray(r.docs)?r.docs:(r.sds_path?[{path:r.sds_path,name:r.sds_name||'SDS'}]:[]), supplier:r.supplier||'', expiry:r.expiry||'', notes:r.notes||'', batch:r.batch||'', sdsPath:r.sds_path||'', sdsName:r.sds_name||'', seedKey:r.seed_key||undefined }),
   recipe: r => ({ id:r.id, name:r.name, yield:r.yield_text||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seedKey:r.seed_key||undefined }),
   batch: r => ({ id:r.id, date:r.date, recipeId:r.recipe_id, recipeName:r.recipe_name, multiplier:Number(r.multiplier)||0, lines:r.lines||[] }),
   cleaning: r => ({ id:r.id, ts:r.ts, by:r.done_by||'', steps:r.steps||[], note:r.note||'' }),
@@ -808,6 +813,7 @@ function renderRecipes(){
   const list=state.recipes.filter(r=>recName(r).toLowerCase().includes(q));
   const head=`<div class="shead"><h2>${t('recipes_title')}</h2>
     <div class="search">${I.search}<input placeholder="${t('search')}" value="${esc(search.recipes)}" oninput="search.recipes=this.value;rerenderList('recipes')"></div>
+    <button class="btn btn-ghost no-print" onclick="window.print()">${I.list}<span>${t('rep_print')}</span></button>
     <button class="btn btn-primary" onclick="openRecipeForm()">${I.plus}<span>${t('new_recipe')}</span></button></div>`;
   let body;
   if(state.recipes.length===0){
@@ -854,6 +860,7 @@ function renderDetail(id){
       <div class="detail-actions">
         <button class="btn btn-green" onclick="openProduce('${r.id}')">${I.beaker}${t('make_batch')}</button>
         <button class="btn btn-ghost" onclick="openRecipeForm('${r.id}')">${I.edit}${t('edit')}</button>
+        <button class="btn btn-ghost" onclick="window.print()">${I.list}${t('rep_print')}</button>
         <button class="btn btn-danger" onclick="confirmDeleteRecipe('${r.id}')">${I.trash}${t('del')}</button>
       </div>
     </div>
@@ -873,6 +880,7 @@ function renderIngredients(){
   const head=`<div class="shead"><h2>${t('ingredients_title')}</h2>
     <div class="search">${I.search}<input placeholder="${t('search')}" value="${esc(search.ingredients)}" oninput="search.ingredients=this.value;rerenderList('ingredients')"></div>
     <select class="ingsort" title="${t('sort_label')}" onchange="setIngSort(this.value)">${sortOpts}</select>
+    <button class="btn btn-ghost no-print" onclick="window.print()">${I.list}<span>${t('rep_print')}</span></button>
     <button class="btn btn-primary" onclick="openIngredientForm()">${I.plus}<span>${t('new_ingredient')}</span></button></div>`;
   let body;
   if(state.ingredients.length===0){
@@ -885,7 +893,7 @@ function renderIngredients(){
       const exp=g.expiry?new Date(g.expiry):null;
       const expSoon=exp && (exp-new Date())/86400000<30;
       const up=unitPrice(g);
-      const sub=`${num(g.minStock)>0?`${t('min_abbr')} ${fmtNum(g.minStock)} ${esc(ul)} · `:''}${up>0?priceUnit(up,g.unit):t('no_price')}${g.expiry?` · ${t('expires')} ${esc(g.expiry)}`:''}${g.batch?` · ${t('batch_abbr')} ${esc(g.batch)}`:''}`;
+      const sub=`${num(g.minStock)>0?`${t('min_abbr')} ${fmtNum(g.minStock)} ${esc(ul)} · `:''}${up>0?priceUnit(up,g.unit):t('no_price')}${g.supplier?` · ${esc(g.supplier)}`:''}${g.expiry?` · ${t('expires')} ${esc(g.expiry)}`:''}${g.batch?` · ${t('batch_abbr')} ${esc(g.batch)}`:''}`;
       return `<div class="irow">
         <div class="nm"><div class="t">${esc(ingName(g))}
           ${low?`<span class="chip low">${t('chip_low')}</span>`:''}
@@ -946,63 +954,73 @@ function renderReport(){
   const toolbar=`<div class="rep-toolbar no-print">
       <div class="field"><label>${t('rep_from')}</label><input type="date" value="${esc(repFrom)}" onchange="setRep('from',this.value)"></div>
       <div class="field"><label>${t('rep_to')}</label><input type="date" value="${esc(repTo)}" onchange="setRep('to',this.value)"></div>
+      <button class="btn btn-ghost" onclick="exportReportXLSX()">${I.list}${t('rep_xlsx_all')}</button>
       <button class="btn btn-green" onclick="printReport()">${I.list}${t('rep_print')}</button>
     </div>`;
   const header=`<div class="rep-head"><h2>${t('report_title')}</h2>
       <div class="rep-meta">${esc(period)} · ${t('rep_generated',fmtWhen(new Date()))}${userEmail?` · ${esc(userEmail)}`:''}</div></div>`;
-  const csvBtn=fn=>`<button class="btn btn-ghost no-print" onclick="${fn}">${t('rep_csv')}</button>`;
+  const xlsxBtn=fn=>`<button class="btn btn-ghost no-print" onclick="${fn}">${t('rep_xlsx')}</button>`;
 
   /* 1. production log with cost */
   const bs=repBatches(); let prodTot=0;
   const prodRows=bs.map(b=>{ const c=batchCost(b); prodTot+=c;
     return `<tr><td>${esc(b.date)}</td><td>${esc(b.recipeName)}</td><td class="num">${fmtNum(b.multiplier)}</td><td class="num">${money(c)}</td></tr>`; }).join('');
-  const prod=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_production')}</h3>${csvBtn('exportProdCSV()')}</div>
+  const prod=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_production')}</h3>${xlsxBtn('exportProdXLSX()')}</div>
     ${bs.length?`<table class="rep-table"><thead><tr><th>${t('col_date')}</th><th>${t('col_recipe')}</th><th class="num">${t('col_batches')}</th><th class="num">${t('col_cost')}</th></tr></thead>
       <tbody>${prodRows}<tr class="total"><td colspan="3">${t('col_total')}</td><td class="num">${money(prodTot)}</td></tr></tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   /* 2. inventory value (as of today) */
   const inv=[...state.ingredients].sort((a,b)=>ingName(a).localeCompare(ingName(b),lang)); let invTot=0;
   const invRows=inv.map(g=>{ const up=unitPrice(g), val=up*num(g.stock); invTot+=val;
-    return `<tr><td>${esc(ingName(g))}</td><td class="num">${fmtNum(g.stock)} ${esc(unitLabel(g.unit))}</td><td class="num">${up>0?priceUnit(up,g.unit):'—'}</td><td class="num">${money(val)}</td></tr>`; }).join('');
-  const invSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_inventory')} <span class="rep-asof">(${t('rep_asof')})</span></h3>${csvBtn('exportInvCSV()')}</div>
-    ${inv.length?`<table class="rep-table"><thead><tr><th>${t('col_ingredient')}</th><th class="num">${t('col_stock')}</th><th class="num">${t('col_unitprice')}</th><th class="num">${t('col_value')}</th></tr></thead>
-      <tbody>${invRows}<tr class="total"><td colspan="3">${t('col_total')}</td><td class="num">${money(invTot)}</td></tr></tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
+    return `<tr><td>${esc(ingName(g))}</td><td>${g.supplier?esc(g.supplier):'—'}</td><td class="num">${fmtNum(g.stock)} ${esc(unitLabel(g.unit))}</td><td class="num">${up>0?priceUnit(up,g.unit):'—'}</td><td class="num">${money(val)}</td></tr>`; }).join('');
+  const invSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_inventory')} <span class="rep-asof">(${t('rep_asof')})</span></h3>${xlsxBtn('exportInvXLSX()')}</div>
+    ${inv.length?`<table class="rep-table"><thead><tr><th>${t('col_ingredient')}</th><th>${t('f_supplier')}</th><th class="num">${t('col_stock')}</th><th class="num">${t('col_unitprice')}</th><th class="num">${t('col_value')}</th></tr></thead>
+      <tbody>${invRows}<tr class="total"><td colspan="4">${t('col_total')}</td><td class="num">${money(invTot)}</td></tr></tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   /* 3. recipe cost (as of today) */
   const recs=[...state.recipes].sort((a,b)=>recName(a).localeCompare(recName(b),lang));
   const recRows=recs.map(r=>`<tr><td>${esc(recName(r))}</td><td>${esc(r.yield||'—')}</td><td class="num">${money(recipeCost(r))}</td></tr>`).join('');
-  const recSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_recipes')} <span class="rep-asof">(${t('rep_asof')})</span></h3>${csvBtn('exportRecCSV()')}</div>
+  const recSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_recipes')} <span class="rep-asof">(${t('rep_asof')})</span></h3>${xlsxBtn('exportRecXLSX()')}</div>
     ${recs.length?`<table class="rep-table"><thead><tr><th>${t('col_recipe')}</th><th>${t('col_yield')}</th><th class="num">${t('col_costper')}</th></tr></thead><tbody>${recRows}</tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   /* 4. cleaning log */
   const cs=repCleanings();
   const clRows=cs.map(c=>`<tr><td>${esc(fmtWhen(c.ts))}</td><td>${c.by?esc(c.by):'—'}</td></tr>`).join('');
-  const clSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_cleaning')}</h3>${csvBtn('exportCleanCSV()')}</div>
+  const clSec=`<div class="rep-sec"><div class="rep-sechead"><h3>${t('sec_cleaning')}</h3>${xlsxBtn('exportCleanXLSX()')}</div>
     ${cs.length?`<table class="rep-table"><thead><tr><th>${t('col_time')}</th><th>${t('col_by')}</th></tr></thead><tbody>${clRows}</tbody></table>`:`<p class="rep-empty">${t('rep_empty')}</p>`}</div>`;
 
   return toolbar+header+prod+invSec+recSec+clSec;
 }
 function printReport(){ window.print(); }
-/* ---- CSV export (semicolon-separated, UTF-8 BOM for Excel) ---- */
-function csvEsc(v){ v=String(v==null?'':v); return /[";\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
-function downloadCSV(name,rows){
-  const txt='﻿'+rows.map(r=>r.map(csvEsc).join(';')).join('\r\n');
-  const blob=new Blob([txt],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click();
-  document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),800); toast(t('rep_csv_done'));
-}
-function exportProdCSV(){ const rows=[[t('col_date'),t('col_recipe'),t('col_batches'),t('col_cost')]]; let tot=0;
-  repBatches().forEach(b=>{ const c=batchCost(b); tot+=c; rows.push([b.date,b.recipeName,fmtNum(b.multiplier),money(c)]); });
-  rows.push([t('col_total'),'','',money(tot)]); downloadCSV('gyartasi-naplo.csv',rows); }
-function exportInvCSV(){ const rows=[[t('col_ingredient'),t('col_stock'),t('col_unitprice'),t('col_value')]]; let tot=0;
+/* ---- XLSX export (SheetJS); numeric values so the accountant can sum in Excel ---- */
+const round2=n=>Math.round(n*100)/100, round3=n=>Math.round(n*1000)/1000;
+const curHdr=()=>` (${CUR[lang].sym})`;
+function rowsProduction(){ const rows=[[t('col_date'),t('col_recipe'),t('col_batches'),t('col_cost')+curHdr()]]; let tot=0;
+  repBatches().forEach(b=>{ const c=batchCost(b); tot+=c; rows.push([b.date,b.recipeName,num(b.multiplier),round2(c)]); });
+  rows.push([t('col_total'),'','',round2(tot)]); return rows; }
+function rowsInventory(){ const rows=[[t('col_ingredient'),t('f_supplier'),t('col_stock'),t('f_unit'),t('col_unitprice')+curHdr(),t('col_value')+curHdr()]]; let tot=0;
   [...state.ingredients].sort((a,b)=>ingName(a).localeCompare(ingName(b),lang)).forEach(g=>{ const up=unitPrice(g), val=up*num(g.stock); tot+=val;
-    rows.push([ingName(g), fmtNum(g.stock)+' '+unitLabel(g.unit), up>0?priceUnit(up,g.unit):'', money(val)]); });
-  rows.push([t('col_total'),'','',money(tot)]); downloadCSV('keszletertek.csv',rows); }
-function exportRecCSV(){ const rows=[[t('col_recipe'),t('col_yield'),t('col_costper')]];
-  [...state.recipes].sort((a,b)=>recName(a).localeCompare(recName(b),lang)).forEach(r=>rows.push([recName(r),r.yield||'',money(recipeCost(r))]));
-  downloadCSV('receptonkoltseg.csv',rows); }
-function exportCleanCSV(){ const rows=[[t('col_time'),t('col_by')]];
-  repCleanings().forEach(c=>rows.push([fmtWhen(c.ts),c.by||''])); downloadCSV('tisztitasi-naplo.csv',rows); }
+    rows.push([ingName(g), g.supplier||'', num(g.stock), unitLabel(g.unit), up>0?round3(up):'', round2(val)]); });
+  rows.push([t('col_total'),'','','','',round2(tot)]); return rows; }
+function rowsRecipes(){ const rows=[[t('col_recipe'),t('col_yield'),t('col_costper')+curHdr()]];
+  [...state.recipes].sort((a,b)=>recName(a).localeCompare(recName(b),lang)).forEach(r=>rows.push([recName(r),r.yield||'',round2(recipeCost(r))])); return rows; }
+function rowsCleaning(){ const rows=[[t('col_time'),t('col_by')]]; repCleanings().forEach(c=>rows.push([fmtWhen(c.ts),c.by||''])); return rows; }
+function saveXLSX(filename, sheets){
+  if(typeof XLSX==='undefined'){ toast('Excel…'); return; }
+  const wb=XLSX.utils.book_new();
+  sheets.forEach(s=>XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(s.rows), String(s.name).replace(/[\\\/?*\[\]:]/g,' ').slice(0,31)));
+  XLSX.writeFile(wb, filename); toast(t('xlsx_done'));
+}
+function exportProdXLSX(){ saveXLSX(t('file_production')+'.xlsx',[{name:t('sec_production'),rows:rowsProduction()}]); }
+function exportInvXLSX(){ saveXLSX(t('file_inventory')+'.xlsx',[{name:t('sec_inventory'),rows:rowsInventory()}]); }
+function exportRecXLSX(){ saveXLSX(t('file_recipes')+'.xlsx',[{name:t('sec_recipes'),rows:rowsRecipes()}]); }
+function exportCleanXLSX(){ saveXLSX(t('file_cleaning')+'.xlsx',[{name:t('sec_cleaning'),rows:rowsCleaning()}]); }
+function exportReportXLSX(){ saveXLSX(t('file_report')+'.xlsx',[
+  {name:t('sec_production'),rows:rowsProduction()},
+  {name:t('sec_inventory'),rows:rowsInventory()},
+  {name:t('sec_recipes'),rows:rowsRecipes()},
+  {name:t('sec_cleaning'),rows:rowsCleaning()},
+]); }
 
 /* ============ MODAL ============ */
 function openModal(html){ document.getElementById('sheet').innerHTML=html; document.getElementById('modalRoot').classList.add('open'); }
@@ -1011,7 +1029,7 @@ function closeModal(){ document.getElementById('modalRoot').classList.remove('op
 /* ============ INGREDIENT FORM ============ */
 let formDocs=[], docsToDelete=[];
 function openIngredientForm(id){
-  const g=id?ing(id):{name:'',unit:'g',stock:'',minStock:'',price:'',expiry:'',notes:'',batch:'',packAmount:'',packPrice:'',packUnit:'',docs:[]};
+  const g=id?ing(id):{name:'',unit:'g',stock:'',minStock:'',price:'',expiry:'',notes:'',batch:'',packAmount:'',packPrice:'',packUnit:'',docs:[],supplier:''};
   const nameVal = id?ingName(g):'';
   formDocs = docsOf(g).map(d=>({...d})); docsToDelete=[];
   openModal(`
@@ -1031,6 +1049,7 @@ function openIngredientForm(id){
         <div class="field"><label>${t('f_pack_unit')}</label><select id="f_pack_unit" onchange="updateUnitPrice()">${packUnitsFor(g.unit).map(u=>`<option value="${u}" ${u===(g.packUnit||g.unit)?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}</select></div>
       </div>
       <div class="unitprice-readout" id="unitPriceReadout"></div>
+      <div class="field"><label>${t('f_supplier')}</label><input id="f_supplier" value="${esc(g.supplier||'')}" placeholder="${t('optional')}"></div>
       <div class="row2">
         <div class="field"><label>${t('f_batch')}</label><input id="f_batch" value="${esc(g.batch||'')}" placeholder="${t('optional')}"></div>
         <div class="field"><label>${t('f_expiry')}</label><input id="f_expiry" type="date" value="${esc(g.expiry)}"></div>
@@ -1123,6 +1142,7 @@ async function saveIngredient(id){
     packAmount, packPrice, packUnit: puEl?puEl.value:stockUnit,
     expiry:document.getElementById('f_expiry').value,
     batch:document.getElementById('f_batch').value.trim(),
+    supplier:document.getElementById('f_supplier').value.trim(),
     docs:formDocs.slice(), sdsPath:'', sdsName:'',
     notes:document.getElementById('f_notes').value.trim() };
   /* keep the legacy per-unit price only when no pack pricing was entered (so old costs stay intact) */
