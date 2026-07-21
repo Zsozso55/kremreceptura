@@ -376,7 +376,7 @@ const T = {
     edit_ingredient:'Alapanyag szerkesztése', f_name:'Megnevezés', f_unit:'Egység', f_stock:'Jelenlegi készlet',
     f_min:'Min. készlet (figyelmeztetés)', f_price:'Ár ({0} / egység)', f_expiry:'Lejárat', f_notes:'Megjegyzés',
     f_batch:'Batch szám / Lot', f_sds:'Biztonsági adatlap (SDS)', sds_hint:'PDF vagy kép feltöltése (a szállító SDS-e).', sds_view:'Megnézés', sds_remove:'Eltávolítás', sds_will_remove:'Mentéskor eltávolítva.', sds_uploading:'Feltöltés…', sds_upload_failed:'A feltöltés nem sikerült', sds_open_failed:'Az adatlap nem nyitható meg', sds_chip:'SDS', batch_abbr:'Lot',
-    f_pack_amount:'Kiszerelés mennyisége', f_pack_price:'Kiszerelés ára ({0})', f_pack_unit:'Kiszerelés egysége', f_unit_price:'Egységár',
+    f_pack_amount:'Kiszerelés mérete', f_pack_price:'Kiszerelés ára ({0})', f_pack_unit:'Kiszerelés egysége', f_unit_price:'Egységár',
     f_docs:'Dokumentumok (SDS, CoA, spec.)', docs_hint:'Több PDF vagy kép is feltölthető — az új hozzáadódik a meglévőkhöz.', docs_title:'Dokumentumok', doc_none:'Nincs feltöltött dokumentum.',
     sort_label:'Rendezés', sort_name_az:'Név A→Z', sort_name_za:'Név Z→A', sort_low:'Alacsony készlet elöl', sort_price:'Ár szerint', sort_expiry:'Lejárat szerint',
     optional:'opcionális', ph_name:'pl. Sheavaj', cancel:'Mégse', save:'Mentés',
@@ -432,7 +432,7 @@ const T = {
     edit_ingredient:'Edit ingredient', f_name:'Name', f_unit:'Unit', f_stock:'Current stock',
     f_min:'Min. stock (alert)', f_price:'Price ({0} / unit)', f_expiry:'Expiry', f_notes:'Notes',
     f_batch:'Batch / Lot no.', f_sds:'Safety data sheet (SDS)', sds_hint:'Upload a PDF or image (the supplier’s SDS).', sds_view:'View', sds_remove:'Remove', sds_will_remove:'Will be removed on save.', sds_uploading:'Uploading…', sds_upload_failed:'Upload failed', sds_open_failed:'Couldn’t open the sheet', sds_chip:'SDS', batch_abbr:'Lot',
-    f_pack_amount:'Pack amount', f_pack_price:'Pack price ({0})', f_pack_unit:'Pack unit', f_unit_price:'Unit price',
+    f_pack_amount:'Pack size', f_pack_price:'Pack price ({0})', f_pack_unit:'Pack unit', f_unit_price:'Unit price',
     f_docs:'Documents (SDS, CoA, spec.)', docs_hint:'You can upload several PDFs or images — new ones are added to the existing list.', docs_title:'Documents', doc_none:'No documents uploaded.',
     sort_label:'Sort', sort_name_az:'Name A→Z', sort_name_za:'Name Z→A', sort_low:'Low stock first', sort_price:'By price', sort_expiry:'By expiry',
     optional:'optional', ph_name:'e.g. Shea butter', cancel:'Cancel', save:'Save',
@@ -705,8 +705,9 @@ const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = v => { const n=parseFloat(String(v).replace(',','.')); return isNaN(n)?0:n; };
 const fmtNum = n => (Math.round(n*100)/100).toLocaleString(CUR[lang].locale);
+const fmtPrice3 = n => (Math.round(n*1000)/1000).toLocaleString(CUR[lang].locale,{minimumFractionDigits:0,maximumFractionDigits:3});
 function money(n){ const c=CUR[lang]; const v=n.toLocaleString(c.locale,{minimumFractionDigits:c.dec,maximumFractionDigits:c.dec}); return c.before? c.sym+v : v+' '+c.sym; }
-function priceUnit(n,unit){ const c=CUR[lang]; const v=fmtNum(n); return c.before?`${c.sym}${v}/${esc(unitLabel(unit))}`:`${v} ${c.sym}/${esc(unitLabel(unit))}`; }
+function priceUnit(n,unit){ const c=CUR[lang]; const v=fmtPrice3(n); return c.before?`${c.sym}${v}/${esc(unitLabel(unit))}`:`${v} ${c.sym}/${esc(unitLabel(unit))}`; }
 const ing = id => state.ingredients.find(x=>x.id===id);
 const recipeCost = r => r.items.reduce((s,it)=>{ const g=ing(it.ingredientId); return s + (g? unitPrice(g)*num(it.amount):0); },0);
 const isLow = g => num(g.minStock)>0 && num(g.stock) <= num(g.minStock);
