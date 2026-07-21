@@ -99,3 +99,21 @@ Az alapanyagokhoz mostantól megadható egy **Batch szám / Lot**, és feltölth
 3. Töltsd fel Vercelre, a telefonon egy kemény frissítés.
 
 Használat: az alapanyag szerkesztőjében a **Batch** mező és az **SDS** rész (Megnézés / Eltávolítás). A listában az SDS-sel rendelkező alapanyagnál egy **SDS** chip jelenik meg — arra koppintva megnyílik az adatlap.
+
+---
+
+## Frissítés (2026-07) — Tisztítási procedúra (higiéniai kapu)
+
+Új **Tisztítás** fül került az appba. Gyártás (Legyártás) csak akkor indítható, ha a
+tisztítási procedúra el van végezve és naplózva. Ha nincs, a Legyártás gomb helyett
+figyelmeztetés jelenik meg, és átvisz a Tisztítás fülre.
+
+- A tisztítás egy **ellenőrzőlista** kipipálásával naplózható (ki, mikor).
+- A naplózott tisztítás alapból **12 órán át érvényes** (egy műszak). Ez az
+  `index.html`-ben a `CLEAN_WINDOW_MS` értékkel állítható (pl. 8 óra = `8*60*60*1000`).
+- A tisztítási napló a **Tisztítás** fülön látható, és a Supabase-ben szinkronizálódik
+  a többi eszközzel.
+
+**Teendő a Supabase-ben (egyszer):** futtasd le a `supabase-schema.sql` végén lévő
+`UPDATE (2026-07)` blokkot az SQL Editorban (létrehozza a `cleanings` táblát + jogosultságokat).
+Ha ez nincs meg, az app akkor is működik és lokálisan naplóz, csak a felhő-szinkron marad ki.

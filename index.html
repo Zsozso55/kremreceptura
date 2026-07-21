@@ -55,12 +55,14 @@ h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;line-height:1.15;l
 .stat .l{font-size:.8rem;color:var(--ink-soft);margin-top:4px}
 .stat.warn .n{color:var(--clay)}
 
-.shead{display:flex;align-items:center;gap:12px;margin:4px 0 16px}
+.shead{display:flex;align-items:center;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
 .shead h2{font-size:1.25rem;color:var(--green-d);flex:0 0 auto}
 .shead .search{flex:1;max-width:280px;margin-left:auto;position:relative}
 .shead .search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);
   border-radius:10px;background:var(--paper-2)}
 .shead .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--ink-soft)}
+.shead .ingsort{flex:0 0 auto;padding:10px 11px;border:1px solid var(--line);border-radius:10px;
+  background:var(--paper-2);color:var(--ink);font-weight:600;font-size:.86rem}
 
 .btn{display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border-radius:10px;
   font-weight:600;font-size:.95rem;transition:.15s;white-space:nowrap}
@@ -116,6 +118,7 @@ h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;line-height:1.15;l
 .lnk{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--green-d);border-bottom:1px solid currentColor;padding-bottom:1px}
 .lnk.danger{color:var(--clay)}
 .hint{font-size:.78rem;color:var(--ink-soft);margin-top:6px}
+.unitprice-readout{font-size:.88rem;color:var(--honey-d);font-weight:600;margin:-4px 0 14px;min-height:1.1em}
 input[type=file]{font-size:.9rem;width:100%}
 
 .log{display:flex;flex-direction:column;gap:8px}
@@ -373,6 +376,9 @@ const T = {
     edit_ingredient:'Alapanyag szerkesztése', f_name:'Megnevezés', f_unit:'Egység', f_stock:'Jelenlegi készlet',
     f_min:'Min. készlet (figyelmeztetés)', f_price:'Ár ({0} / egység)', f_expiry:'Lejárat', f_notes:'Megjegyzés',
     f_batch:'Batch szám / Lot', f_sds:'Biztonsági adatlap (SDS)', sds_hint:'PDF vagy kép feltöltése (a szállító SDS-e).', sds_view:'Megnézés', sds_remove:'Eltávolítás', sds_will_remove:'Mentéskor eltávolítva.', sds_uploading:'Feltöltés…', sds_upload_failed:'A feltöltés nem sikerült', sds_open_failed:'Az adatlap nem nyitható meg', sds_chip:'SDS', batch_abbr:'Lot',
+    f_pack_amount:'Kiszerelés mennyisége', f_pack_price:'Kiszerelés ára ({0})', f_pack_unit:'Kiszerelés egysége', f_unit_price:'Egységár',
+    f_docs:'Dokumentumok (SDS, CoA, spec.)', docs_hint:'Több PDF vagy kép is feltölthető — az új hozzáadódik a meglévőkhöz.', docs_title:'Dokumentumok', doc_none:'Nincs feltöltött dokumentum.',
+    sort_label:'Rendezés', sort_name_az:'Név A→Z', sort_name_za:'Név Z→A', sort_low:'Alacsony készlet elöl', sort_price:'Ár szerint', sort_expiry:'Lejárat szerint',
     optional:'opcionális', ph_name:'pl. Sheavaj', cancel:'Mégse', save:'Mentés',
     need_name:'Adj meg egy nevet', ingredient_added:'Alapanyag hozzáadva', ingredient_updated:'Alapanyag frissítve',
     edit_recipe:'Recept szerkesztése', r_name:'Recept neve', ph_recipe:'pl. Hidratáló arckrém',
@@ -426,6 +432,9 @@ const T = {
     edit_ingredient:'Edit ingredient', f_name:'Name', f_unit:'Unit', f_stock:'Current stock',
     f_min:'Min. stock (alert)', f_price:'Price ({0} / unit)', f_expiry:'Expiry', f_notes:'Notes',
     f_batch:'Batch / Lot no.', f_sds:'Safety data sheet (SDS)', sds_hint:'Upload a PDF or image (the supplier’s SDS).', sds_view:'View', sds_remove:'Remove', sds_will_remove:'Will be removed on save.', sds_uploading:'Uploading…', sds_upload_failed:'Upload failed', sds_open_failed:'Couldn’t open the sheet', sds_chip:'SDS', batch_abbr:'Lot',
+    f_pack_amount:'Pack amount', f_pack_price:'Pack price ({0})', f_pack_unit:'Pack unit', f_unit_price:'Unit price',
+    f_docs:'Documents (SDS, CoA, spec.)', docs_hint:'You can upload several PDFs or images — new ones are added to the existing list.', docs_title:'Documents', doc_none:'No documents uploaded.',
+    sort_label:'Sort', sort_name_az:'Name A→Z', sort_name_za:'Name Z→A', sort_low:'Low stock first', sort_price:'By price', sort_expiry:'By expiry',
     optional:'optional', ph_name:'e.g. Shea butter', cancel:'Cancel', save:'Save',
     need_name:'Enter a name', ingredient_added:'Ingredient added', ingredient_updated:'Ingredient updated',
     edit_recipe:'Edit recipe', r_name:'Recipe name', ph_recipe:'e.g. Moisturising face cream',
@@ -504,7 +513,7 @@ const CLEAN_STEPS = {
     'Edények és tégelyek sterilizálva / fertőtlenítve',
     'Kézmosás és -fertőtlenítés, tiszta kesztyű',
     'Haj összefogva, tiszta köpeny / kötény',
-    'Előző gyártás maradéka eltávolítva, felületek szárazak',
+    'Ellenőrizve: nincs maradék az előző gyártásból, minden felület és eszköz tiszta és száraz',
   ],
   en:[
     'Work surface cleared and sanitised (70% alcohol)',
@@ -512,7 +521,7 @@ const CLEAN_STEPS = {
     'Vessels and jars sterilised / sanitised',
     'Hands washed and sanitised, clean gloves on',
     'Hair tied back, clean coat / apron',
-    'Previous batch residue removed, surfaces dry',
+    'Verified: no residue from the previous batch, all surfaces and tools clean and dry',
   ],
 };
 const I = {
@@ -532,6 +541,33 @@ const I = {
 
 /* ============ state ============ */
 const UNITS = ['g','ml','db','csepp','%'];
+/* ---- purchase-unit conversion: buy in a pack unit, use a (possibly different) stock unit ---- */
+const PACK_FACTOR = { g:1, kg:1000, ml:1, l:1000, db:1, csepp:1, '%':1 };
+const PACK_COMPAT = { g:['g','kg'], kg:['g','kg'], ml:['ml','l'], l:['ml','l'], db:['db'], csepp:['csepp'], '%':['%'] };
+function packUnitsFor(stockUnit){ return PACK_COMPAT[stockUnit] || [stockUnit]; }
+/* unit price expressed per stock unit (converts pack unit -> stock unit) */
+function unitPrice(g){
+  const pa=num(g.packAmount), pp=num(g.packPrice), pu=g.packUnit||g.unit, su=g.unit;
+  if(pa>0 && pp>0 && PACK_FACTOR[pu] && PACK_FACTOR[su]){
+    const amtInStock = pa*(PACK_FACTOR[pu]/PACK_FACTOR[su]);
+    if(amtInStock>0) return pp/amtInStock;
+  }
+  return num(g.price); /* legacy fallback: stored price is already per stock unit */
+}
+/* documents attached to an ingredient (with legacy single-SDS fallback) */
+function docsOf(g){ if(Array.isArray(g.docs)&&g.docs.length) return g.docs; if(g.sdsPath) return [{path:g.sdsPath,name:g.sdsName||'SDS'}]; return []; }
+/* ingredient sort choice (persisted) */
+let ingSort = (function(){ try{ return localStorage.getItem('receptura.ingSort')||'name_az'; }catch(e){ return 'name_az'; } })();
+function setIngSort(v){ ingSort=v; try{ localStorage.setItem('receptura.ingSort',v); }catch(e){} rerenderList('ingredients'); }
+function applyIngSort(list){
+  const by=ingSort, coll=(a,b)=>ingName(a).localeCompare(ingName(b),lang), arr=[...list];
+  if(by==='name_za') arr.sort((a,b)=>coll(b,a));
+  else if(by==='low_first') arr.sort((a,b)=>(isLow(b)-isLow(a))||coll(a,b));
+  else if(by==='price') arr.sort((a,b)=>(unitPrice(a)-unitPrice(b))||coll(a,b));
+  else if(by==='expiry') arr.sort((a,b)=>{ const ea=a.expiry?Date.parse(a.expiry):Infinity, eb=b.expiry?Date.parse(b.expiry):Infinity; return (ea-eb)||coll(a,b); });
+  else arr.sort(coll);
+  return arr;
+}
 let state = { ingredients:[], recipes:[], batches:[], cleanings:[], lang:'hu' };
 let userEmail='';
 const CLEAN_WINDOW_MS = 12*60*60*1000;   /* a logged cleaning stays valid for 12 hours */
@@ -559,13 +595,13 @@ function cacheLoad(){ try{ const raw=localStorage.getItem(CACHE_KEY); if(raw){ c
 
 /* ---- map app objects <-> database columns ---- */
 const toRow = {
-  ingredient: g => ({ id:g.id, name:g.name, unit:g.unit, stock:num(g.stock), min_stock:num(g.minStock), price:num(g.price), expiry:g.expiry||null, notes:g.notes||'', batch:g.batch||null, sds_path:g.sdsPath||null, sds_name:g.sdsName||null, seed_key:g.seedKey||null }),
+  ingredient: g => ({ id:g.id, name:g.name, unit:g.unit, stock:num(g.stock), min_stock:num(g.minStock), price:num(g.price), pack_amount:num(g.packAmount), pack_price:num(g.packPrice), pack_unit:g.packUnit||null, docs:g.docs||[], expiry:g.expiry||null, notes:g.notes||'', batch:g.batch||null, sds_path:g.sdsPath||null, sds_name:g.sdsName||null, seed_key:g.seedKey||null }),
   recipe: r => ({ id:r.id, name:r.name, yield_text:r.yield||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seed_key:r.seedKey||null }),
   batch: b => ({ id:b.id, date:b.date, recipe_id:b.recipeId, recipe_name:b.recipeName, multiplier:num(b.multiplier), lines:b.lines||[] }),
   cleaning: c => ({ id:c.id, ts:c.ts, done_by:c.by||'', steps:c.steps||[], note:c.note||'' }),
 };
 const fromRow = {
-  ingredient: r => ({ id:r.id, name:r.name, unit:r.unit, stock:Number(r.stock)||0, minStock:Number(r.min_stock)||0, price:Number(r.price)||0, expiry:r.expiry||'', notes:r.notes||'', batch:r.batch||'', sdsPath:r.sds_path||'', sdsName:r.sds_name||'', seedKey:r.seed_key||undefined }),
+  ingredient: r => ({ id:r.id, name:r.name, unit:r.unit, stock:Number(r.stock)||0, minStock:Number(r.min_stock)||0, price:Number(r.price)||0, packAmount:Number(r.pack_amount)||0, packPrice:Number(r.pack_price)||0, packUnit:r.pack_unit||'', docs:Array.isArray(r.docs)?r.docs:(r.sds_path?[{path:r.sds_path,name:r.sds_name||'SDS'}]:[]), expiry:r.expiry||'', notes:r.notes||'', batch:r.batch||'', sdsPath:r.sds_path||'', sdsName:r.sds_name||'', seedKey:r.seed_key||undefined }),
   recipe: r => ({ id:r.id, name:r.name, yield:r.yield_text||'', description:r.description||'', items:r.items||[], steps:r.steps||[], seedKey:r.seed_key||undefined }),
   batch: r => ({ id:r.id, date:r.date, recipeId:r.recipe_id, recipeName:r.recipe_name, multiplier:Number(r.multiplier)||0, lines:r.lines||[] }),
   cleaning: r => ({ id:r.id, ts:r.ts, by:r.done_by||'', steps:r.steps||[], note:r.note||'' }),
@@ -672,7 +708,7 @@ const fmtNum = n => (Math.round(n*100)/100).toLocaleString(CUR[lang].locale);
 function money(n){ const c=CUR[lang]; const v=n.toLocaleString(c.locale,{minimumFractionDigits:c.dec,maximumFractionDigits:c.dec}); return c.before? c.sym+v : v+' '+c.sym; }
 function priceUnit(n,unit){ const c=CUR[lang]; const v=fmtNum(n); return c.before?`${c.sym}${v}/${esc(unitLabel(unit))}`:`${v} ${c.sym}/${esc(unitLabel(unit))}`; }
 const ing = id => state.ingredients.find(x=>x.id===id);
-const recipeCost = r => r.items.reduce((s,it)=>{ const g=ing(it.ingredientId); return s + (g? num(g.price)*num(it.amount):0); },0);
+const recipeCost = r => r.items.reduce((s,it)=>{ const g=ing(it.ingredientId); return s + (g? unitPrice(g)*num(it.amount):0); },0);
 const isLow = g => num(g.minStock)>0 && num(g.stock) <= num(g.minStock);
 
 function toast(msg){
@@ -787,10 +823,12 @@ function closeDetail(){ detailId=null; render(); }
 /* ============ INGREDIENTS ============ */
 function renderIngredients(){
   const q=search.ingredients.toLowerCase();
-  const list=state.ingredients.filter(g=>ingName(g).toLowerCase().includes(q))
-    .sort((a,b)=>(isLow(b)-isLow(a))||ingName(a).localeCompare(ingName(b),lang));
+  const list=applyIngSort(state.ingredients.filter(g=>ingName(g).toLowerCase().includes(q)));
+  const sortOpts=[['name_az','sort_name_az'],['name_za','sort_name_za'],['low_first','sort_low'],['price','sort_price'],['expiry','sort_expiry']]
+    .map(([v,k])=>`<option value="${v}" ${ingSort===v?'selected':''}>${t(k)}</option>`).join('');
   const head=`<div class="shead"><h2>${t('ingredients_title')}</h2>
     <div class="search">${I.search}<input placeholder="${t('search')}" value="${esc(search.ingredients)}" oninput="search.ingredients=this.value;rerenderList('ingredients')"></div>
+    <select class="ingsort" title="${t('sort_label')}" onchange="setIngSort(this.value)">${sortOpts}</select>
     <button class="btn btn-primary" onclick="openIngredientForm()">${I.plus}<span>${t('new_ingredient')}</span></button></div>`;
   let body;
   if(state.ingredients.length===0){
@@ -802,12 +840,13 @@ function renderIngredients(){
       const stock=num(g.stock), low=isLow(g), ul=unitLabel(g.unit);
       const exp=g.expiry?new Date(g.expiry):null;
       const expSoon=exp && (exp-new Date())/86400000<30;
-      const sub=`${num(g.minStock)>0?`${t('min_abbr')} ${fmtNum(g.minStock)} ${esc(ul)} · `:''}${g.price>0?priceUnit(g.price,g.unit):t('no_price')}${g.expiry?` · ${t('expires')} ${esc(g.expiry)}`:''}${g.batch?` · ${t('batch_abbr')} ${esc(g.batch)}`:''}`;
+      const up=unitPrice(g);
+      const sub=`${num(g.minStock)>0?`${t('min_abbr')} ${fmtNum(g.minStock)} ${esc(ul)} · `:''}${up>0?priceUnit(up,g.unit):t('no_price')}${g.expiry?` · ${t('expires')} ${esc(g.expiry)}`:''}${g.batch?` · ${t('batch_abbr')} ${esc(g.batch)}`:''}`;
       return `<div class="irow">
         <div class="nm"><div class="t">${esc(ingName(g))}
           ${low?`<span class="chip low">${t('chip_low')}</span>`:''}
           ${expSoon?`<span class="chip exp">${t('chip_exp')}</span>`:''}
-          ${g.sdsPath?`<span class="chip sds" title="${t('f_sds')}" onclick="event.stopPropagation();openSDS('${esc(g.sdsPath)}')">${t('sds_chip')}</span>`:''}</div>
+          ${docsOf(g).length?`<span class="chip sds" title="${t('f_sds')}" onclick="event.stopPropagation();openDocs('${g.id}')">${t('sds_chip')}${docsOf(g).length>1?' · '+docsOf(g).length:''}</span>`:''}</div>
           <div class="sub">${sub}</div></div>
         <div class="qty"><div class="big ${stock<0?'neg':''}">${fmtNum(stock)}</div><div class="u">${esc(ul)} ${t('in_stock')}</div></div>
         <div class="acts">
@@ -856,31 +895,36 @@ function openModal(html){ document.getElementById('sheet').innerHTML=html; docum
 function closeModal(){ document.getElementById('modalRoot').classList.remove('open'); }
 
 /* ============ INGREDIENT FORM ============ */
-let sdsPendingRemove=false;
+let formDocs=[], docsToDelete=[];
 function openIngredientForm(id){
-  const g=id?ing(id):{name:'',unit:'g',stock:'',minStock:'',price:'',expiry:'',notes:'',batch:''};
+  const g=id?ing(id):{name:'',unit:'g',stock:'',minStock:'',price:'',expiry:'',notes:'',batch:'',packAmount:'',packPrice:'',packUnit:'',docs:[]};
   const nameVal = id?ingName(g):'';
-  sdsPendingRemove=false;
+  formDocs = docsOf(g).map(d=>({...d})); docsToDelete=[];
   openModal(`
     <div class="sheet-head"><h2>${id?t('edit_ingredient'):t('new_ingredient')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
     <div class="sheet-body">
       <div class="field"><label>${t('f_name')}</label><input id="f_name" value="${esc(nameVal)}" placeholder="${t('ph_name')}"></div>
       <div class="row2">
-        <div class="field"><label>${t('f_unit')}</label><select id="f_unit">${UNITS.map(u=>`<option value="${u}" ${u===g.unit?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}</select></div>
+        <div class="field"><label>${t('f_unit')}</label><select id="f_unit" onchange="onStockUnitChange()">${UNITS.map(u=>`<option value="${u}" ${u===g.unit?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}</select></div>
         <div class="field"><label>${t('f_stock')}</label><input id="f_stock" inputmode="decimal" value="${esc(g.stock)}" placeholder="0"></div>
       </div>
       <div class="row2">
         <div class="field"><label>${t('f_min')}</label><input id="f_min" inputmode="decimal" value="${esc(g.minStock)}" placeholder="${t('optional')}"></div>
-        <div class="field"><label>${t('f_price',CUR[lang].sym)}</label><input id="f_price" inputmode="decimal" value="${esc(g.price)}" placeholder="${t('optional')}"></div>
+        <div class="field"><label>${t('f_pack_price',CUR[lang].sym)}</label><input id="f_pack_price" inputmode="decimal" value="${esc(g.packPrice)}" placeholder="${t('optional')}" oninput="updateUnitPrice()"></div>
       </div>
+      <div class="row2">
+        <div class="field"><label>${t('f_pack_amount')}</label><input id="f_pack_amount" inputmode="decimal" value="${esc(g.packAmount)}" placeholder="${t('optional')}" oninput="updateUnitPrice()"></div>
+        <div class="field"><label>${t('f_pack_unit')}</label><select id="f_pack_unit" onchange="updateUnitPrice()">${packUnitsFor(g.unit).map(u=>`<option value="${u}" ${u===(g.packUnit||g.unit)?'selected':''}>${esc(unitLabel(u))}</option>`).join('')}</select></div>
+      </div>
+      <div class="unitprice-readout" id="unitPriceReadout"></div>
       <div class="row2">
         <div class="field"><label>${t('f_batch')}</label><input id="f_batch" value="${esc(g.batch||'')}" placeholder="${t('optional')}"></div>
         <div class="field"><label>${t('f_expiry')}</label><input id="f_expiry" type="date" value="${esc(g.expiry)}"></div>
       </div>
-      <div class="field"><label>${t('f_sds')}</label>
-        <div id="sdsCur">${(g.sdsPath)?sdsCurHTML(g):''}</div>
-        <input id="f_sds" type="file" accept="application/pdf,image/*">
-        <div class="hint">${t('sds_hint')}</div>
+      <div class="field"><label>${t('f_docs')}</label>
+        <div id="docsCur">${docsCurHTMLFromForm()}</div>
+        <input id="f_sds" type="file" accept="application/pdf,image/*" multiple>
+        <div class="hint">${t('docs_hint')}</div>
       </div>
       <div class="field"><label>${t('f_notes')}</label><textarea id="f_notes" placeholder="${t('optional')}">${esc(g.notes)}</textarea></div>
     </div>
@@ -889,14 +933,43 @@ function openIngredientForm(id){
       <button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button>
       <button class="btn btn-primary btn-block" id="ingSaveBtn" onclick="saveIngredient('${id||''}')">${I.check}${t('save')}</button>
     </div>`);
-  setTimeout(()=>document.getElementById('f_name').focus(),60);
+  setTimeout(()=>{ const fn=document.getElementById('f_name'); if(fn) fn.focus(); updateUnitPrice(); },60);
 }
-function sdsCurHTML(g){
-  return `<div class="sds-cur"><span class="fn">${esc(g.sdsName||'SDS')}</span>
-    <span class="lnks"><a class="lnk" onclick="openSDS('${esc(g.sdsPath)}')">${t('sds_view')}</a>
-    <a class="lnk danger" onclick="markSdsRemove()">${t('sds_remove')}</a></span></div>`;
+/* ---- pack unit / unit-price live readout ---- */
+function onStockUnitChange(){
+  const su=document.getElementById('f_unit').value;
+  const sel=document.getElementById('f_pack_unit');
+  if(sel){ const cur=sel.value; const opts=packUnitsFor(su); const keep=opts.includes(cur)?cur:su;
+    sel.innerHTML=opts.map(u=>`<option value="${u}" ${u===keep?'selected':''}>${esc(unitLabel(u))}</option>`).join(''); }
+  updateUnitPrice();
 }
-function markSdsRemove(){ sdsPendingRemove=true; const c=document.getElementById('sdsCur'); if(c) c.innerHTML=`<div class="hint">${t('sds_will_remove')}</div>`; }
+function updateUnitPrice(){
+  const el=document.getElementById('unitPriceReadout'); if(!el) return;
+  const su=document.getElementById('f_unit').value;
+  const pa=num(document.getElementById('f_pack_amount').value);
+  const pp=num(document.getElementById('f_pack_price').value);
+  const puEl=document.getElementById('f_pack_unit'); const pu=puEl?puEl.value:su;
+  if(pa>0 && pp>0 && PACK_FACTOR[pu] && PACK_FACTOR[su]){
+    const up=pp/(pa*(PACK_FACTOR[pu]/PACK_FACTOR[su]));
+    el.textContent=`${t('f_unit_price')}: ${priceUnit(up,su)}`;
+  } else el.textContent='';
+}
+/* ---- document list (edit form) ---- */
+function docsCurHTMLFromForm(){
+  if(!formDocs.length) return '';
+  return formDocs.map((d,i)=>`<div class="sds-cur"><span class="fn">${esc(d.name||'SDS')}</span>
+    <span class="lnks"><a class="lnk" onclick="openSDS('${esc(d.path)}')">${t('sds_view')}</a>
+    <a class="lnk danger" onclick="markDocRemove(${i})">${t('sds_remove')}</a></span></div>`).join('');
+}
+function renderDocsCur(){ const el=document.getElementById('docsCur'); if(el) el.innerHTML=docsCurHTMLFromForm(); }
+function markDocRemove(i){ const removed=formDocs.splice(i,1)[0]; if(removed&&removed.path) docsToDelete.push(removed.path); renderDocsCur(); }
+/* ---- read-only document list (from the ingredients list chip) ---- */
+function openDocs(id){
+  const g=ing(id); if(!g) return; const ds=docsOf(g);
+  openModal(`<div class="sheet-head"><h2>${t('docs_title')}</h2><button class="closeX" onclick="closeModal()">✕</button></div>
+    <div class="sheet-body">${ds.length?ds.map(d=>`<div class="sds-cur"><span class="fn">${esc(d.name||'SDS')}</span><span class="lnks"><a class="lnk" onclick="openSDS('${esc(d.path)}')">${t('sds_view')}</a></span></div>`).join(''):`<p style="color:var(--ink-soft)">${t('doc_none')}</p>`}</div>
+    <div class="sheet-foot"><button class="btn btn-ghost btn-block" onclick="closeModal()">${t('cancel')}</button></div>`);
+}
 async function uploadSDS(file, ingId){
   const safe=(file.name||'sds').replace(/[^a-zA-Z0-9._-]/g,'_').slice(-60);
   const path=`${ingId}/${Date.now()}_${safe}`;
@@ -916,29 +989,32 @@ async function saveIngredient(id){
   if(!name){ toast(t('need_name')); return; }
   const realId = id || uid();
   const g = id?ing(id):null;
-  let sdsPath = g?(g.sdsPath||''):''; let sdsName = g?(g.sdsName||''):'';
+  const btn=document.getElementById('ingSaveBtn');
+  /* upload any newly-selected files, append to the document list */
   const fileInput=document.getElementById('f_sds');
-  const file=fileInput && fileInput.files && fileInput.files[0];
-  if(sdsPendingRemove){
-    if(sdsPath){ try{ await sb.storage.from('sds').remove([sdsPath]); }catch(e){} }
-    sdsPath=''; sdsName='';
+  const files=fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+  if(files.length){
+    if(btn){ btn.disabled=true; btn.textContent=t('sds_uploading'); }
+    try{ for(const f of files){ const p=await uploadSDS(f, realId); formDocs.push({path:p, name:f.name}); } }
+    catch(e){ toast(t('sds_upload_failed')); if(btn){ btn.disabled=false; btn.textContent=t('save'); } return; }
   }
-  if(file){
-    const btn=document.getElementById('ingSaveBtn'); if(btn){ btn.disabled=true; btn.textContent=t('sds_uploading'); }
-    try{
-      if(sdsPath){ try{ await sb.storage.from('sds').remove([sdsPath]); }catch(e){} }
-      sdsPath = await uploadSDS(file, realId);
-      sdsName = file.name;
-    }catch(e){ toast(t('sds_upload_failed')); if(btn){ btn.disabled=false; btn.textContent=t('save'); } return; }
-  }
-  const data={ name, unit:document.getElementById('f_unit').value,
+  /* remove any documents the user deleted */
+  if(docsToDelete.length){ try{ await sb.storage.from('sds').remove(docsToDelete); }catch(e){} docsToDelete=[]; }
+  const stockUnit=document.getElementById('f_unit').value;
+  const puEl=document.getElementById('f_pack_unit');
+  const packAmount=num(document.getElementById('f_pack_amount').value);
+  const packPrice=num(document.getElementById('f_pack_price').value);
+  const data={ name, unit:stockUnit,
     stock:num(document.getElementById('f_stock').value), minStock:num(document.getElementById('f_min').value),
-    price:num(document.getElementById('f_price').value), expiry:document.getElementById('f_expiry').value,
-    batch:document.getElementById('f_batch').value.trim(), sdsPath, sdsName,
+    packAmount, packPrice, packUnit: puEl?puEl.value:stockUnit,
+    expiry:document.getElementById('f_expiry').value,
+    batch:document.getElementById('f_batch').value.trim(),
+    docs:formDocs.slice(), sdsPath:'', sdsName:'',
     notes:document.getElementById('f_notes').value.trim() };
+  /* keep the legacy per-unit price only when no pack pricing was entered (so old costs stay intact) */
+  data.price = (packAmount>0 && packPrice>0) ? 0 : (g?num(g.price):0);
   if(id){ Object.assign(g,data); delete g.seedKey; }
   else { state.ingredients.push({id:realId,...data}); }
-  sdsPendingRemove=false;
   await saveState(); closeModal(); render(); toast(id?t('ingredient_updated'):t('ingredient_added'));
 }
 
@@ -1198,7 +1274,7 @@ function seed(){
 function migrate(){
   const map={'Sheavaj':'shea','Jojoba olaj':'jojoba','Emulgeáló viasz':'emulwax','Desztillált víz':'water','E-vitamin':'vite','Levendula illóolaj':'lavender'};
   let changed=false;
-  (state.ingredients||[]).forEach(g=>{ if(!g.seedKey && map[g.name]){ g.seedKey=map[g.name]; changed=true; } });
+  (state.ingredients||[]).forEach(g=>{ if(!g.seedKey && map[g.name]){ g.seedKey=map[g.name]; changed=true; } if((!Array.isArray(g.docs)||!g.docs.length) && g.sdsPath){ g.docs=[{path:g.sdsPath,name:g.sdsName||'SDS'}]; changed=true; } });
   (state.recipes||[]).forEach(r=>{ if(!r.seedKey && r.name==='Hidratáló levendula arckrém'){ r.seedKey='lavcream'; r.steps=[]; changed=true; } });
   return changed;
 }

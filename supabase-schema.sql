@@ -89,9 +89,35 @@ create policy "sds update" on storage.objects for update to authenticated using 
 create policy "sds delete" on storage.objects for delete to authenticated using (bucket_id = 'sds');
 
 -- ============================================================
---  UPDATE (2026-07): unit pricing + multiple documents / ingredient
+--  UPDATE (2026-07): pack pricing + multiple documents per ingredient
 --  Run this once in the SQL Editor if you set the app up earlier.
 -- ============================================================
+
+-- pack-based pricing (buy 200 g for £3.5 -> £0.0175/g), with a pack unit for kg/l conversion
 alter table public.ingredients add column if not exists pack_amount numeric default 0;
 alter table public.ingredients add column if not exists pack_price  numeric default 0;
+alter table public.ingredients add column if not exists pack_unit   text;
+-- multiple attached documents per ingredient (SDS, CoA, spec.) as [{path,name}]
 alter table public.ingredients add column if not exists docs        jsonb default '[]'::jsonb;
+
+-- ============================================================
+--  UPDATE (2026-07): cleaning log (hygiene gate before batches)
+--  Run this once in the SQL Editor if you set the app up earlier.
+-- ============================================================
+
+create table if not exists public.cleanings (
+  id          text primary key,
+  user_id     uuid not null default auth.uid(),
+  ts          timestamptz not null default now(),
+  done_by     text default '',
+  steps       jsonb default '[]'::jsonb,
+  note        text default '',
+  created_at  timestamptz default now()
+);
+
+alter table public.cleanings enable row level security;
+drop policy if exists "own cleanings" on public.cleanings;
+create policy "own cleanings" on public.cleanings
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter publication supabase_realtime add table public.cleanings;
